@@ -1,0 +1,8 @@
+Fix I Block Rotation
+Add functional Power Ups
+Make Game Speed Up
+Fix overlap at end of game. 
+Add spam filter.
+DISPLAY LOST/WON on Canvases, Clear canvas serverside.
+FREE NODE HOSTING - https://www.openshift.com/, password: mvhstetris1234, user: mvhstetris
+Make spacebar have delay (~300 ms) while holding to avoid insta-lose

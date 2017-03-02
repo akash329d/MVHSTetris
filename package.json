@@ -1,0 +1,23 @@
+{
+  "name": "mvhstetris",
+  "version": "1.0.0",
+  "description": "A Tetris Game made using SocketIO, Node",
+  "main": "nodeserver.js",
+  "engines": {
+    "node": "6.10.0"
+  },
+  "dependencies": {
+    "jsdom": "^9.11.0",
+    "express": "^4.10.2",
+    "javascript-obfuscator": "^0.9.1",
+    "jquery": "^3.1.1",
+    "socket.io": "^1.7.2",
+    "node-minify": "^2.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Akash, Willis",
+  "license": "ISC"
+}

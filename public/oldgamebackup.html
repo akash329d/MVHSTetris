@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="shortcut icon" href="https://cdn.discordapp.com/attachments/193407460730470410/281197329233608704/favicon.ico">
+	<title>MVHS Tetris</title>
+	<meta charset="utf-8">
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+	<nav>
+		<div class="nav-wrapper light-green darken-4">
+			<a class="brand-logo center">MVHS Tetris</a>
+		</div>
+	</nav>
+	<div class="section">
+	  <div class="row">
+	    <div class="col s2 offset-s2" id="player1label" style="font-size: 0.875em;" >1. Player</div>
+	    <div class="col s6">
+	      <div class="col s1"></div>
+	      <div class="col s2" id="player2label" style="font-size: 0.875em;">2. Player</div>
+	      <div class="col s2 offset-s1" id="player3label" style="font-size: 0.875em;">3. Player</div>
+	      <div class="col s2 offset-s1" id="player4label" style="font-size: 0.875em;">4. Player</div>
+	      <div class="col s2 offset-s1" id="player5label" style="font-size: 0.875em;">5. Player</div>
+	     
+	    </div>
+	  </div>
+		<div class="row">
+			<canvas class="col s1 offset-s1" height = "300" style="border:1px solid #000000;padding: 0rem" id="nextPieceCanvas"></canvas>
+			<canvas class="col s2 " height = "600" style="border:1px solid #000000;padding: 0rem" id="mainCanvas" tabindex='1'></canvas>
+			<div class="col s6">
+				<div class="row">
+					<div class="col s1"></div>
+					<canvas class="col s2" height = "600" style="border:1px solid #000000; padding: 0rem" id="player2Canvas"></canvas>
+					<canvas class="col s2 offset-s1" height = "600"  style="border:1px solid #000000;padding: 0rem" id="player3Canvas"></canvas>
+					<canvas class="col s2 offset-s1" height = "600"  style="border:1px solid #000000;padding: 0rem" id="player4Canvas"></canvas>
+					<canvas class="col s2 offset-s1" height = "600"  style="border:1px solid #000000;padding: 0rem" id="player5Canvas"></canvas>
+				</div>
+				<div class="row">
+					<div class="col s1"></div>
+					<div class="col s11" id="textBox" style="height:13vw;border-style: solid;border-color: grey;overflow: hidden;">
+						<ul id="messageList" style="text-size: 5px">
+							<li class="blue-text text-darken-2">Connecting...</li>
+						</ul>
+					</div>
+					<div class="col s1"></div>
+					<div class="input-field col s11">
+						<i class="material-icons prefix">chat</i> <input id="chat" type="text">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="section">
+		<div class="container row"></div>
+	</div>
+	<style>
+	 li { font-size: 12px }
+	</style>
+</body>
+</html>
