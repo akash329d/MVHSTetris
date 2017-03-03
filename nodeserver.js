@@ -209,6 +209,12 @@ io.on('connection', function(socket) {
             case "D":
                 powerUpName = "Darkness";
                 break;
+            case "I":
+            	powerUpName = "Inverted Controls";
+            	break;
+            case "R":
+            	powerUpName = "Random Clear";
+            	break;
             case "default":
             	powerUpName = "unknown";
             	break;
