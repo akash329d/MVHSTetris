@@ -7,9 +7,11 @@ var JavaScriptObfuscator = require('javascript-obfuscator');
 var $;
 
 var compressor = require('node-minify');
- 
-// Using Google Closure Compiler 
+// Initialize 
 
+ 
+// Bad-words will be replaced with funny words using funny mode. 
+//console.log(profanity.run('Go to hell!')); // --> Go to unicorn! 
 
 var fs = require("fs");
 var vm = require('vm');
@@ -35,50 +37,33 @@ var usernamevalid = /^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$/;
 var usersPlaying = [];
 var countdownStarted = false;
 var gamejs;
-var clientjs;
-var servergamejs;
 
-console.log('Obfuscating Javascript...')
+console.log('Obfuscating/Protecting Javascript...')
 function obfuscate(){
 gamejs = JavaScriptObfuscator.obfuscate(
     fs.readFileSync(__dirname + '/public/game.js', "utf8"),
     {
-        compact: true,
-        controlFlowFlattening: true,
-        disableConsoleOutput: false
-    });
+    compact: true,
+    controlFlowFlattening: true,
+    controlFlowFlatteningThreshold: 1,	
+    debugProtection: false,
+    debugProtectionInterval: false,
+    disableConsoleOutput: false,
+    rotateStringArray: true,
+    selfDefending: true,
+    stringArray: true,
+    stringArrayEncoding: 'rc4',
+    stringArrayThreshold: 1,
+    unicodeEscapeSequence: false
+});
     
-clientjs = JavaScriptObfuscator.obfuscate(
-    fs.readFileSync(__dirname + '/public/client.js', "utf8"),
-    {
-        compact: true,
-        controlFlowFlattening: true,
-        disableConsoleOutput: false
-    });
-
-servergamejs = JavaScriptObfuscator.obfuscate(
-    fs.readFileSync(__dirname + '/public/servergame.js', "utf8"),
-    {
-        compact: true,
-        controlFlowFlattening: true,
-        disableConsoleOutput: false
-    });
 }
 obfuscate();
     
-    console.log('Obfuscation Finished!');
+console.log('Obfuscation Finished! Ready to serve!');
 
 app.get('/game.js',function(req,res){
-	obfuscate();
    res.send(gamejs.getObfuscatedCode());
-});
-app.get('/client.js',function(req,res){
-	obfuscate();
-	res.send(clientjs.getObfuscatedCode());
-});
-app.get('/servergame.js',function(req,res){
-	obfuscate();
-   res.send(servergamejs.getObfuscatedCode());
 });
 
 
@@ -93,7 +78,8 @@ http.listen(process.env.PORT, process.env.IP);
 io.on('connection', function(socket) {
 	
 	socket.on('gameUpdate', function(data){
-	users[socket.id].gameBoard = JSON.parse(data);	
+	users[socket.id].gameBoard = data[0];	
+	users[socket.id].gameBoardStatic = data[1];	
 	});
   
   
@@ -176,7 +162,7 @@ io.on('connection', function(socket) {
 				}
 			}
 			else {
-				io.sockets.emit("updateChat", users[socket.id].name + ": " + data);
+				io.sockets.emit("updateChat", users[socket.id].name + ": " + filter.clean(data));
 			}
 	});
 	
@@ -190,6 +176,11 @@ io.on('connection', function(socket) {
 			clearInterval(gameUpdateInterval);
 			io.sockets.emit("gameOver");
 			io.sockets.emit("update", users[usersPlaying[0]].name + " won the game!");
+			for(var x = 0; x < 5; x++){
+			if(users[orderedSockets[x]].name != 0){
+				users[orderedSockets[x]].gameBoard = null;	
+			}
+			}
 			usersPlaying = [];
 			
 			}
@@ -197,10 +188,28 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on("power", function(data){
-		for(var k = 0; k < data[1]; k ++) {
-			data[2 + k] = Math.random();
+		for(var k = 0; k < data[2]; k ++) {
+			data[3 + k] = Math.random();
 		}
-			socket.broadcast.emit("clientPower", data);
+		if(data[1] == "all"){
+		socket.broadcast.emit("clientPower", data);
+		}else{
+			var targetSocket = $.grep(Object.keys(users), function (k) {
+				return users[k].name == data[1];
+			});
+			io.sockets.emit("update", users[socket.id].name + " used " + data[0] + " on " + users[targetSocket[0]].name + "!");
+			if(data[0] == "S"){
+				var gameBoard1 =users[targetSocket[0]].gameBoardStatic;
+				var gameBoard2 = users[socket.id].gameBoardStatic;
+				data[2] = gameBoard1;
+				socket.emit("clientPower", data);
+				data[2] = gameBoard2;
+				users[targetSocket[0]].socket.emit("clientPower", data);
+			}else{
+				users[targetSocket[0]].socket.emit("clientPower", data);	
+			}
+			
+		}
 	});
 	
 	socket.on("disconnect", function() {

@@ -1,8 +1,24 @@
 Fix I Block Rotation
-Add functional Power Ups
+Finish power ups that aren't functional.
 Make Game Speed Up
 Fix overlap at end of game. 
 Add spam filter.
 DISPLAY LOST/WON on Canvases, Clear canvas serverside.
 FREE NODE HOSTING - https://www.openshift.com/, password: mvhstetris1234, user: mvhstetris
 Make spacebar have delay (~300 ms) while holding to avoid insta-lose
+
+
+In order to update heroku app:
+Navigate to willisehrler:~/workspace
+$ git add .
+$ git commit -am "make it better"
+$ git push heroku master
+
+To turn on heroku:
+heroku ps:scale web=1
+
+To turn off heroku:
+heroku ps:scale web=0
+
+Amount of heroku hours left:
+heroku ps -a <app name>

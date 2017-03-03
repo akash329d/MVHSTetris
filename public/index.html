@@ -21,7 +21,7 @@
 	</nav>
 	<div class="section">
 		<div class="row">
-			<div class="col s1 offset-s1" style="font-size: 1em;margin-top:.5em;user-select: none;padding-left:3em">
+			<div class="col s1 offset-s1" style="font-size: 1em;margin-top:.5em;user-select: none;padding-left:1em">
 				Next Piece
 			</div>
 			<div class="col s2" id="player1label" style="font-size: 1.5em;user-select: none;overflow: hidden;white-space: nowrap;  text-overflow: ellipsis;">
@@ -40,7 +40,11 @@
 		</div>
 		<div class="row" style="margin-top: -1em">
 			<canvas class="col s1 offset-s1" height="300" width = "300" id="nextPieceCanvas" style="padding: 0rem;margin-right:.5em; user-select: none;"></canvas>
-			<canvas class="col s2 z-depth-2" height="600" width = "300" id="mainCanvas" style="border:2px solid;padding: 0rem; background-color:#E4E4EC;border-color: grey;border-radius: 10px;" tabindex='1'></canvas>
+			<div class="row col s2">
+				<canvas class="col s12 z-depth-2" height="600" width = "300" id="mainCanvas" style="border:2px solid;padding: 0rem; background-color:#E4E4EC;border-color: grey;border-radius: 10px;" tabindex='1'></canvas> <br>
+				<canvas class="col s12 z-depth-2" height="35" width = "300" id="powerUpsCanvas" style="border:2px solid;padding-top: 0rem; background-color:#E4E4EC;border-color: grey;border-radius: 4px;margin-top: 10px"></canvas>
+				</div>
+			
 			<div class="col s6">
 				<div class="row">
 					<div class="col s1"></div>
@@ -51,7 +55,7 @@
 				</div>
 				<div class="row">
 					<div class="col s1"></div>
-					<div class="col s11 z-depth-1" id="textBox" style="height:13vw;border-style: solid;border-color: grey;overflow: hidden;overflow-y: scroll;">
+					<div class="col s11 z-depth-1" id="textBox" style="height:12.75vw;border-style: solid;border-color: grey;overflow: hidden;overflow-y: scroll;">
 						<ul id="messageList" style="text-size: 5px">
 							<li class="blue-text text-darken-2">Connecting...</li>
 						</ul>
@@ -63,22 +67,9 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div >
-				<canvas class="col s2 offset-s2 y-depth-2" height = 40 style="margin-left: 15.5em; margin-top: -5em;border:2px solid;padding: 0rem; background-color:#E8E8F0;user-select: none;border-color: grey;border-radius: 7px;"id="powerUps"</canvas>
-			</div>
-		</div>
-	</div>
-	<div class="section">
-		<div class="container row"></div>
-	</div>
 	<style>
 	    li { font-size: 12px }
 	</style>
-	<script src="/servergame.js">
-	</script> 
-	<script src="/client.js">
-	</script> 
 	<script src="/game.js">
 	</script>
 </body>
