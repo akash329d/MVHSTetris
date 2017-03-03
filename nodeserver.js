@@ -162,7 +162,7 @@ io.on('connection', function(socket) {
 				}
 			}
 			else {
-				io.sockets.emit("updateChat", users[socket.id].name + ": " + filter.clean(data));
+				io.sockets.emit("updateChat", users[socket.id].name + ": " + data);
 			}
 	});
 	
