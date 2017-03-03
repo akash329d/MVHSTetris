@@ -62,7 +62,7 @@ class TetrisGame {
 		}
 		this.thispiece = this.nextPiece;
 		this.keysToProcess = [];
-		this.powerUpArray = ['R', 'R', 'R', 'R', 'I','I'];
+		this.powerUpArray = [];
 	}
 	
 	getBlocks(piece,curBoard, fn){
