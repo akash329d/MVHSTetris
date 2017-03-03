@@ -50,7 +50,7 @@ class TetrisGame {
 		this.darknessEnabled = false;
 		this.board = [];
 		this.boardStatic = [];
-		this.timeToFall = 600;
+		this.timeToFall = 500;
 		this.fallTimer = new Date();
 		this.clearTimer = new Date();
 		this.board = [];
@@ -319,14 +319,16 @@ class TetrisGame {
 	}
 	
 	process() {
-	    if(!this.darknessEnabled){
 		this.updateDynamicBoard();
 		if((new Date()) - this.clearTimer > 100){
 		    this.clearTimer = new Date(this.fallTimer.getTime() + 100);
 		    this.clearLines();
 		}
 		if ((new Date()) - this.fallTimer > this.timeToFall) {
-		this.fallTimer = new Date(this.fallTimer.getTime() + 400);
+		this.fallTimer = new Date(this.fallTimer.getTime() + this.timeToFall);
+		if(this.timeToFall > 150){
+		this.timeToFall = this.timeToFall - 0.05;
+		}
 		if(this.canMove('down')){
 		    //Move Block Down
 			this.moveBlock(this.thispiece,'down');
@@ -342,8 +344,12 @@ class TetrisGame {
 		if(!(JSON.stringify(this.boardStatic[0]) == JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))){
             this.hasLost = true;
         }
-	    }
         this.keyPressHandler(this.keysToProcess.shift());
+        if(this.darknessEnabled){
+            for (var c = 0; c < 20; c++) {
+			this.board[c] = ["grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey"];
+		}
+        }
 	}
 	
 	clearLines(){
@@ -626,6 +632,7 @@ function updatePlayerLabels(main, player2, player3, player4, player5){
 var game;
 var interval; 
 var counter;
+var gameRunning = false;
 var canvasObj = [document.getElementById("mainCanvas"),
                 document.getElementById("player2Canvas"),
                 document.getElementById("player3Canvas"),
@@ -635,25 +642,24 @@ var canvasObj = [document.getElementById("mainCanvas"),
                document.getElementById("powerUpsCanvas")];
 
 socket.on('ready', function(data){
-    if(data == 1.3243402349832493){
-    counter = 0;
-	canvasObj[0].addEventListener('keydown', keydown, false);
-	game = new TetrisGame(interval, Math.floor(Math.random() * (1000000)));
-	interval = setInterval(process, 1);
-	canvasObj[0].focus();
-    }else{
 	counter = 0;
 	setTimeout(function(){
 	 canvasObj[0].addEventListener('keydown', keydown, false);
 	 game = new TetrisGame(interval, data);
 	interval = setInterval(process, 1);
 	canvasObj[0].focus();
+	gameRunning = true;
 	}, 5000);
-    }
-	
 });
+
+  socket.on('gameInterval', function(){
+     if(gameRunning){
+         process();
+     } 
+  });
   
   socket.on("gameOver", function(){
+      gameRunning = false;
     if(game.hasLost){
         clearInterval(interval);
         drawLost(canvasObj[0]);
@@ -692,8 +698,10 @@ function process(){
     updateCanvasFromArray(game.boardVar, canvasObj[0]);
     drawNextPiece(game.getNextPiece());
     if(game.hasLost){
+        gameRunning = false;
         socket.emit("lost");
         clearInterval(interval);
+        clearCanvas(canvasObj[6]);
         drawLost(canvasObj[0]);
     }
 }
@@ -1044,8 +1052,11 @@ function updateCanvasFromArray(board, canvas){
 
 
 socket.on('updateViews', function(data) {
+    clearCanvas(canvasObj[1]);
+    clearCanvas(canvasObj[2]);
+     clearCanvas(canvasObj[3]);
+     clearCanvas(canvasObj[4]);
     if(data[0] != null) {
-        clearCanvas(canvasObj[1]);
         if(data[0] != "LOST"){
         updateCanvasFromArray(data[0], canvasObj[1]);
         }else{
@@ -1053,7 +1064,6 @@ socket.on('updateViews', function(data) {
         }
     }
     if(data[1] != null) {
-        clearCanvas(canvasObj[2]);
         if(data[1] != "LOST"){
         updateCanvasFromArray(data[1], canvasObj[2]);
         }else{
@@ -1061,7 +1071,6 @@ socket.on('updateViews', function(data) {
         }
     }
     if(data[2] != null) {
-        clearCanvas(canvasObj[3]);
         if(data[2] != "LOST"){
         updateCanvasFromArray(data[2], canvasObj[3]);
         }else{
@@ -1069,7 +1078,6 @@ socket.on('updateViews', function(data) {
         }
     }
     if(data[3] != null) {
-        clearCanvas(canvasObj[4]);
         if(data[3] != "LOST"){
         updateCanvasFromArray(data[3], canvasObj[4]);
         }else{

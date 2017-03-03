@@ -7,16 +7,13 @@ var JavaScriptObfuscator = require('javascript-obfuscator');
 var $;
 
 var compressor = require('node-minify');
-// Initialize 
 
- 
-// Bad-words will be replaced with funny words using funny mode. 
-//console.log(profanity.run('Go to hell!')); // --> Go to unicorn! 
 
 var fs = require("fs");
 var vm = require('vm');
 var gameRunning = false;
 var gameUpdateInterval;
+var gameProcessInterval;
 
 vm.runInThisContext(fs.readFileSync(__dirname + "/serverGameHandler.js"));
 require("jsdom").env("", function(err, window) {
@@ -37,6 +34,7 @@ var usernamevalid = /^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$/;
 var usersPlaying = [];
 var countdownStarted = false;
 var gamejs;
+var doObfuscate = false;
 
 console.log('Obfuscating/Protecting Javascript...')
 function obfuscate(){
@@ -46,8 +44,8 @@ gamejs = JavaScriptObfuscator.obfuscate(
     compact: true,
     controlFlowFlattening: true,
     controlFlowFlatteningThreshold: 1,	
-    debugProtection: false,
-    debugProtectionInterval: false,
+    debugProtection: true,
+    debugProtectionInterval: true,
     disableConsoleOutput: false,
     rotateStringArray: true,
     selfDefending: true,
@@ -63,7 +61,11 @@ obfuscate();
 console.log('Obfuscation Finished! Ready to serve!');
 
 app.get('/game.js',function(req,res){
+	if(doObfuscate){
    res.send(gamejs.getObfuscatedCode());
+	}else{
+		res.send(fs.readFileSync(__dirname + '/public/game.js', "utf8"));
+	}
 });
 
 
@@ -135,15 +137,21 @@ io.on('connection', function(socket) {
 												usersPlaying = $.grep(Object.keys(users), function(k) {
 													return users[k].ready == true;
 												});
-												console.log("Game started with: " + usersPlaying);
 												for (var i = 0; i < usersPlaying.length; i++) {
 													users[usersPlaying[i]].socket.emit("ready", randNum);
 													users[usersPlaying[i]].ready = false;
 												}
+												
+											}, 5000);
+											setTimeout(function(){
+												gameProcessInterval = setInterval(function(){
+													io.sockets.emit('gameInterval');
+												}, 20);
 												gameUpdateInterval = setInterval(function() {
 													updateGameViews();
 												}, 250);
-											}, 5000);
+												
+											},10000);
 										} else {
 											io.sockets.emit("update", "Need more than 1 person to start the game!");
 										}
@@ -153,10 +161,6 @@ io.on('connection', function(socket) {
 								}
 							}
 						break;
-						case "/admin 4258":
-							io.sockets.emit("update", "Admin force started game!")
-							io.sockets.emit("ready", 1.3243402349832493);
-							break;
 						default:
 							socket.emit("update", "Sorry, that command wasn't recognized!");
 				}
@@ -174,11 +178,13 @@ io.on('connection', function(socket) {
 			if(usersPlaying.length == 1){
 			gameRunning = false;
 			clearInterval(gameUpdateInterval);
+			clearInterval(gameProcessInterval);
 			io.sockets.emit("gameOver");
 			io.sockets.emit("update", users[usersPlaying[0]].name + " won the game!");
 			for(var x = 0; x < 5; x++){
 			if(users[orderedSockets[x]].name != 0){
 				users[orderedSockets[x]].gameBoard = null;	
+				updateGameViews();
 			}
 			}
 			usersPlaying = [];
@@ -212,6 +218,10 @@ io.on('connection', function(socket) {
 		}
 	});
 	
+	socket.on("serverLog", function(data){
+		console.log(data);
+	});
+	
 	socket.on("disconnect", function() {
 		if (users[socket.id] != undefined) {
 			if(usersPlaying.length > 1 && $.inArray(socket.id, usersPlaying) != -1){
@@ -241,6 +251,7 @@ function submitUsernameValidation(socket, username){
                 users[socket.id] = {name: username, socket: socket, ready: false};
                 orderedSockets[orderedSockets.length] = socket.id;
 				socket.emit("update", "Welcome " + users[socket.id].name + ", server communication established.");
+				socket.emit("update", 'To ready up, type /ready!')
 				socket.broadcast.emit("update", users[socket.id].name + " connected to the server!");
 				updateUsernameLabels();
             }else{

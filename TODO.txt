@@ -1,11 +1,12 @@
 Fix I Block Rotation
 Finish power ups that aren't functional.
+Move power up get code to serverside.
 Make Game Speed Up
 Fix overlap at end of game. 
 Add spam filter.
-DISPLAY LOST/WON on Canvases, Clear canvas serverside.
-FREE NODE HOSTING - https://www.openshift.com/, password: mvhstetris1234, user: mvhstetris
+FREE NODE HOSTING - heroku.com
 Make spacebar have delay (~300 ms) while holding to avoid insta-lose
+MAKE MULTIPLE ROOMS (will have to make the server an object, then create multiple instances and manage rooms from seperate array (socket. io supports this))
 
 
 In order to update heroku app:
@@ -21,4 +22,4 @@ To turn off heroku:
 heroku ps:scale web=0
 
 Amount of heroku hours left:
-heroku ps -a <app name>
+heroku ps -a mvhstetris
