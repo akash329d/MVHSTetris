@@ -194,6 +194,28 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on("power", function(data){
+		var powerUpName;
+		switch(data[0]){
+            case "A":
+                powerUpName = "Add Line";
+                break;
+            case "N":
+                powerUpName = "Nuke";
+                break;
+            case "C":
+                powerUpName = "Clear Line";
+                break;
+            case "S":
+                powerUpName = "Switch Fields";
+                break;
+            case "D":
+                powerUpName = "Darkness";
+                break;
+            case "default":
+            	powerUpName = "unknown";
+            	break;
+        }
+		
 		for(var k = 0; k < data[2]; k ++) {
 			data[3 + k] = Math.random();
 		}
@@ -203,7 +225,7 @@ io.on('connection', function(socket) {
 			var targetSocket = $.grep(Object.keys(users), function (k) {
 				return users[k].name == data[1];
 			});
-			io.sockets.emit("update", users[socket.id].name + " used " + data[0] + " on " + users[targetSocket[0]].name + "!");
+			io.sockets.emit("update", users[socket.id].name + " used " + powerUpName + " on " + users[targetSocket[0]].name + "!");
 			if(data[0] == "S"){
 				var gameBoard1 =users[targetSocket[0]].gameBoardStatic;
 				var gameBoard2 = users[socket.id].gameBoardStatic;
