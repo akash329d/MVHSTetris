@@ -34,7 +34,7 @@ var usernamevalid = /^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$/;
 var usersPlaying = [];
 var countdownStarted = false;
 var gamejs;
-var doObfuscate = false;
+var doObfuscate = true;
 
 console.log('Obfuscating/Protecting Javascript...')
 function obfuscate(){
