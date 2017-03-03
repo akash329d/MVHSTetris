@@ -265,7 +265,7 @@ class TetrisGame {
 	newBlock(blockType){
 	    switch(blockType){
 	        case 'i':
-	           return (new Block(2, 2, 2, 2, "#0000ff", 1));
+	           return (new Block(4, 4, 4, 4, "#0000ff", 1));
 	        case 'o': 
 	           return (new Block(6, 6, 0, 0, "#ff0000", 2));
 	       case 'l':
@@ -919,7 +919,7 @@ function keydown(e){
         break;
       case KEY.TWO:
           if(users[1] != ""){
-        var powerUp = game.powerUpArray.splice(0, 1)[0];
+        powerUp = game.powerUpArray.splice(0, 1)[0];
         if(powerUp != null){
         socket.emit("power", [powerUp, users[1], 1]);
         }
@@ -927,7 +927,7 @@ function keydown(e){
           break;
       case KEY.THREE:
           if(users[2] != ""){
-        var powerUp = game.powerUpArray.splice(0, 1)[0];
+        powerUp = game.powerUpArray.splice(0, 1)[0];
         if(powerUp != null){
         socket.emit("power", [powerUp, users[2], 1]);
         }
@@ -935,7 +935,7 @@ function keydown(e){
           break;
       case KEY.FOUR:
           if(users[3] != ""){
-        var powerUp = game.powerUpArray.splice(0, 1)[0];
+        powerUp = game.powerUpArray.splice(0, 1)[0];
         if(powerUp != null){
         socket.emit("power", [powerUp, users[3], 1]);
         }
@@ -943,7 +943,7 @@ function keydown(e){
           break;
       case KEY.FIVE:
           if(users[4] != ""){
-        var powerUp = game.powerUpArray.splice(0, 1)[0];
+        powerUp = game.powerUpArray.splice(0, 1)[0];
         if(powerUp != null){
         socket.emit("power", [powerUp, users[4], 1]);
         }
