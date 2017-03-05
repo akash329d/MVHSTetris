@@ -65,6 +65,7 @@ app.get('/game.js',function(req,res){
 app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
 
 app.get('/*', function(req, res) {
+	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date())
 	res.sendFile(__dirname + '/public/');
 });
 
