@@ -319,6 +319,9 @@ class TetrisGame {
 	}
 	
 	process() {
+	    if(!(JSON.stringify(this.boardStatic[0]) == JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))){
+            this.hasLost = true;
+        }
 		this.updateDynamicBoard();
 		if((new Date()) - this.clearTimer > 100){
 		    this.clearTimer = new Date(this.fallTimer.getTime() + 100);
@@ -340,10 +343,7 @@ class TetrisGame {
 			this.thispiece = this.nextPiece; 
 		}
 		}
-		//If the top row has a block in it, they have lost
-		if(!(JSON.stringify(this.boardStatic[0]) == JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))){
-            this.hasLost = true;
-        }
+		
         this.keyPressHandler(this.keysToProcess.shift());
         if(this.darknessEnabled){
             for (var c = 0; c < 20; c++) {

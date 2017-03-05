@@ -3,19 +3,14 @@ var express = require("express");
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var fs = require("fs");
 var JavaScriptObfuscator = require('javascript-obfuscator');
 var $;
 
-var compressor = require('node-minify');
-
-
-var fs = require("fs");
-var vm = require('vm');
 var gameRunning = false;
 var gameUpdateInterval;
 var gameProcessInterval;
 
-vm.runInThisContext(fs.readFileSync(__dirname + "/serverGameHandler.js"));
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
