@@ -196,6 +196,9 @@ io.on('connection', function(socket) {
             case "N":
                 powerUpName = "Nuke";
                 break;
+            case "E":
+            	powerUpName = "Earthquake";
+            	break;
             case "C":
                 powerUpName = "Clear Line";
                 break;

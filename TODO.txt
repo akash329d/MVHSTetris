@@ -1,6 +1,7 @@
 Finish power ups that aren't functional.
 Move power up get code to serverside.
-Make Game Speed Up
+Make Game Speed Up.
+Sound Effects
 Add spam filter.
 Make spacebar have delay (~300 ms) while holding to avoid insta-lose
 MAKE MULTIPLE ROOMS (will have to make the server an object, then create multiple instances and manage rooms from seperate array (socket. io supports this))
