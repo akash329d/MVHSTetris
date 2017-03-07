@@ -13,7 +13,7 @@
     "jquery": "^3.1.1",
     "socket.io": "^1.7.2",
     "node-minify": "^2.0.3",
-    "did-you-mean": "0.0.1"
+    "didyoumean": "^1.2.1"
   },
   "devDependencies": {},
   "scripts": {
