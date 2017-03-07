@@ -1,6 +1,4 @@
-Finish power ups that aren't functional.
 Move power up get code to serverside.
-Make Game Speed Up.
 Sound Effects
 Add spam filter.
 Make spacebar have delay (~300 ms) while holding to avoid insta-lose
