@@ -40,7 +40,7 @@ gamejs = JavaScriptObfuscator.obfuscate(
     controlFlowFlattening: false,
     debugProtection: false,
     debugProtectionInterval: false,
-    disableConsoleOutput: true,
+    disableConsoleOutput: false,
     rotateStringArray: true,
     selfDefending: true,
     stringArray: false,
@@ -74,6 +74,7 @@ http.listen(process.env.PORT, process.env.IP);
 io.on('connection', function(socket) {
 	
 	socket.on('gameUpdate', function(data){
+	users[socket.id].lastUpdate = new Date();
 	users[socket.id].gameBoard = data[0];	
 	users[socket.id].gameBoardStatic = data[1];	
 	});
@@ -94,6 +95,12 @@ io.on('connection', function(socket) {
 		}else{
 		    submitUsernameValidation(socket, username);
 		}
+	});
+	
+	socket.on('hackingDetected', function(){
+		socket.broadcast.emit("update", 'Server detected "' + users[socket.id].name + '" hacking, was kicked!');
+		socket.emit("update", "You were suspected of hacking, kicked!");
+		socket.disconnect();
 	});
 	
 	socket.on('chatMsg', function(data) {
@@ -134,12 +141,23 @@ io.on('connection', function(socket) {
 												for (var i = 0; i < usersPlaying.length; i++) {
 													users[usersPlaying[i]].socket.emit("ready", randNum);
 													users[usersPlaying[i]].ready = false;
+													users[usersPlaying[i]].lastUpdate = new Date();
 												}
 												
 											}, 5000);
 											setTimeout(function(){
+												for (var i = 0; i < usersPlaying.length; i++) {
+													users[usersPlaying[i]].lastUpdate = new Date();
+												}
 												gameProcessInterval = setInterval(function(){
 													io.sockets.emit('gameInterval');
+													for (var i = 0; i < usersPlaying.length; i++) {
+															if(((new Date()) - users[usersPlaying[i]].lastUpdate) > 2000){
+																users[usersPlaying[i]].socket.broadcast.emit("update", 'Server detected "' + users[usersPlaying[i]].name + '" hacking, was kicked!');
+																users[usersPlaying[i]].socket.emit("update", "You were suspected of hacking, kicked!");
+																users[usersPlaying[i]].socket.disconnect();
+															}
+														}
 												}, 20);
 												gameUpdateInterval = setInterval(function() {
 													updateGameViews();
@@ -252,11 +270,21 @@ io.on('connection', function(socket) {
 			if(usersPlaying.length > 1 && $.inArray(socket.id, usersPlaying) != -1){
 			usersPlaying.remove(socket.id);
 			io.sockets.emit("update", users[socket.id].name + " lost the game!");
+			users[socket.id].gameBoard = "LOST";
 			if(usersPlaying.length == 1){
 			gameRunning = false;
+			clearInterval(gameUpdateInterval);
+			clearInterval(gameProcessInterval);
 			io.sockets.emit("gameOver");
 			io.sockets.emit("update", users[usersPlaying[0]].name + " won the game!");
+			for(var x = 0; x < 5; x++){
+			if(users[orderedSockets[x]].name != 0){
+				users[orderedSockets[x]].gameBoard = null;	
+				updateGameViews();
+			}
+			}
 			usersPlaying = [];
+			
 			}
 			}
 			io.sockets.emit("update", users[socket.id].name + " has left the server.");

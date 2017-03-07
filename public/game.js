@@ -1,8 +1,12 @@
 /* 
   global io 
   global $
+  global Image
   */
 "use strict";
+
+
+
 (function(){
 var KEY = { ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
     ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53};
@@ -735,6 +739,19 @@ var users = [];
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
   socket.emit('userLogon', user);
   
+  //Inspect detection
+var element = new Image();
+Object.defineProperty(element, 'id', {
+  get: function () {
+    alert('Haha, nice inspect element!');
+    socket.emit('hackingDetected');
+    setTimeout(function(){
+        socket.disconnect();
+    }, 500);
+    
+  }
+});
+console.log('%cNice Try :P', element);
   
   socket.on("updateLabels", function(names){
     users = names;
