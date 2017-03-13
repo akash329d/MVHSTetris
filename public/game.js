@@ -11,6 +11,13 @@
 var KEY = { ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
     ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53};
   
+window.onbeforeunload = function() { 
+    window.setTimeout(function () { 
+        window.location = '/';
+    }, 0); 
+    window.onbeforeunload = null; // necessary to prevent infinite loop, that kills your browser 
+}
+  
 console.log('MVHS Tetris Loaded!');
 
 class Block {
@@ -472,7 +479,8 @@ class TetrisGame {
                 KEY.ARROWDOWN = 38;
                 KEY.ARROWUP = 40;
                 setTimeout(function() {
-                    KEY = {ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39};
+                    KEY = {ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
+                    ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39};
                 }, 5000);
                 break;
             case "E":
@@ -737,7 +745,7 @@ var users = [];
   var socket = io();
   var user = prompt("Please enter a username", 
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
-  socket.emit('userLogon', user);
+  socket.emit('userLogon', [user, window.location.pathname]);
   
   //Inspect detection
 var element = new Image();
@@ -758,19 +766,17 @@ console.log('%cNice Try :P', element);
     updatePlayerLabels(names[0], names[1], names[2], names[3], names[4]);
   });
   
-  socket.on("update", function(msg) {
+socket.on("update", function(msg) {
 			 addChatMessageServer(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
 		
-		  socket.on("updateChat", function(msg) {
+socket.on("updateChat", function(msg) {
 			 addChatMessage(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
-		
-		
-		
-		$( document ).ready(function() {
+
+$( document ).ready(function() {
 		  $(document).on("keypress", "#chat", function(e) {
      if (e.which == 13 && ($('#chat').val() != '')) {
        socket.emit('chatMsg', $('#chat').val());
@@ -780,7 +786,7 @@ console.log('%cNice Try :P', element);
 		  document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 });
 
-  socket.on('disconnect', function(){
+socket.on('disconnect', function(){
       addChatMessageServer('You disconnected!');
   });
 

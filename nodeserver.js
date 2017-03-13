@@ -1,4 +1,7 @@
-/*global TetrisGame*/
+/*global TetrisGame
+global gameServer
+*/
+"use strict";
 var express = require("express");
 var app = require('express')();
 var http = require('http').Server(app);
@@ -8,14 +11,7 @@ var JavaScriptObfuscator = require('javascript-obfuscator');
 var didYouMean = require("didyoumean");
 didYouMean.threshold = null;
 var $;
-var voting = false;
-var kickVotes = 0;
-var kickVotesNo = 0;
 
-var gameRunning = false;
-var gameUpdateInterval;
-var gameProcessInterval;
-var userToKick;
 
 require("jsdom").env("", function(err, window) {
     if (err) {
@@ -25,6 +21,8 @@ require("jsdom").env("", function(err, window) {
 
     $ = require("jquery")(window);
 });
+
+
 
 var adjectives= ["aback","abaft","abandoned","abashed","aberrant",
     "abhorrent","abiding","abject","ablaze","able","abnormal","aboard",
@@ -155,153 +153,145 @@ var nouns= ["ninja","chair","pancake","statue","unicorn","rainbows","laser","sen
     "setdecorator","silversmith","teacher","automechanic","beader","bobbinboy","clerkofthechapel","fillingstationattendant",
     "foreman","maintenanceengineering","mechanic","miller","moldmaker","panelbeater","patternmaker","plantoperator","plumber",
     "sawfiler","shopforeman","soaper","stationaryengineer","wheelwright","woodworkers"];
-var users = {undefined:{name: '', socket: '', game: '', index: '', voted: false}};
-var orderedSockets = [];
-var usernamevalid = /^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$/;
-var usersPlaying = [];
-var countdownStarted = false;
 var gamejs;
 var doObfuscate = true;
 
-console.log('Obfuscating/Protecting Javascript...');
-function obfuscate(){
-gamejs = JavaScriptObfuscator.obfuscate(
-    fs.readFileSync(__dirname + '/public/game.js', "utf8"),
-    {
-    compact: true,
-    controlFlowFlattening: false,
-    debugProtection: false,
-    debugProtectionInterval: false,
-    disableConsoleOutput: false,
-    rotateStringArray: true,
-    selfDefending: true,
-    stringArray: false,
-    stringArrayEncoding: false,
-    unicodeEscapeSequence: true
-});
+//GAME SERVER CLASSES
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
+class gameServer{
+
+    constructor(gameID){
+    	this.gameID = gameID;
+        this.voting = false;
+        this.kickVotesYes = 0;
+        this.kickVotesNo = 0;
+        this.gameRunning = false;
+        this.gameUpdateInterval;
+        this.gameProcessInterval;
+        this.userToKick;
+        this.users = {undefined:{name: '', socket: '', game: '', index: '', voted: false}};
+        this.orderedSockets = [];
+        this.usernamevalid = /^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$/;
+        this.usersPlaying = [];
+        this.countdownStarted = false;
+    }
     
-}
-obfuscate();
+    gameUpdate(socket, data){
+        if (this.users[socket.id] != undefined){
+	    this.users[socket.id].lastUpdate = new Date();
+	    this.users[socket.id].gameBoard = data[0];	
+	    this.users[socket.id].gameBoardStatic = data[1];	
+	}
+    }
     
-console.log('Obfuscation Finished! Ready to serve!');
-
-app.get('/game.js',function(req,res){
-	if(doObfuscate){
-   res.send(gamejs.getObfuscatedCode());
-	}else{
-		res.send(fs.readFileSync(__dirname + '/public/game.js', "utf8"));
-	}
-});
-
-
-app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
-
-app.get('/*', function(req, res) {
-	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date());
-	res.sendFile(__dirname + '/public/');
-});
-
-http.listen(process.env.PORT, process.env.IP);
-
-io.on('connection', function(socket) {
-	
-	socket.on('gameUpdate', function(data){
-	if (users[socket.id] != undefined){
-	users[socket.id].lastUpdate = new Date();
-	users[socket.id].gameBoard = data[0];	
-	users[socket.id].gameBoardStatic = data[1];	
-	}
-	});
-  
-  
-	socket.on('userLogon', function(username) {
-		if((Object.size(users) - 1) >= 5){
-		    socket.emit("update", 'Server has to many people!');
+    userLogon(socket, data){
+        if((Object.size(this.users) - 1) >= 5){
+		    socket.emit("update", 'Server has too many people!');
 			socket.disconnect();
-		}else if(username == null || username == undefined){
+		}else if(data == null || data == undefined){
 		    //This means they didn't select a username, most likely blocked alerts.
 		    socket.emit("update", "No username recieved or null, random username assigned.");
-			username = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
-			submitUsernameValidation(socket, username);
-		}else if(username.length > 35 || username.length < 3){
+			data = adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
+			this.submitUsernameValidation(socket, data);
+		}else if(data.length > 35 || data.length < 3){
 		    socket.emit("update", 'Username too short/long, please choose a different one!');
 			socket.disconnect();
-		}else{
-		    submitUsernameValidation(socket, username);
+		}else{0
+		    this.submitUsernameValidation(socket, data);
 		}
-	});
-	
-	socket.on('hackingDetected', function(){
-		if (users[socket.id] != undefined){
-		socket.broadcast.emit("update", 'Server detected "' + users[socket.id].name + '" hacking, was kicked!');
+    }
+    
+    hackingDetected(socket, data){
+        if (this.users[socket.id] != undefined){
+		socket.broadcast.to(this.gameID).emit("update", 'Server detected "' + this.users[socket.id].name + '" hacking, was kicked!');
 		socket.emit("update", "You were suspected of hacking, kicked!");
 		socket.disconnect();
 		}
-	});
-	
-	socket.on('chatMsg', function(data) {
-		if (users[socket.id] != undefined){
+    }
+    
+    chatMessage(socket, data){
+        if (this.users[socket.id] != undefined){
 			if (data.length > 150) {
 				socket.emit("update", "Chat message too long, please stay under 150 characters");
 			} 
 			else if(data.charAt(0) == "/") {
 				switch(data.substring(0,6)){
 					case "/ready":
-							if (gameRunning) {
+							if (this.gameRunning) {
 								socket.emit("update", "Game already running!");
 							} else {
-								if (users[socket.id].ready == false) {
-									users[socket.id].ready = true;
-									var amountReady = $.grep(Object.keys(users), function(k) {
-										return users[k].ready == true;
+								if (this.users[socket.id].ready == false) {
+									this.users[socket.id].ready = true;
+									var users = this.users;
+									var amountReady = $.grep(Object.keys(this.users), function(k) {
+										return users[k].ready == true; 
 									}).length;
-									io.sockets.emit("update", users[socket.id].name + " is ready to play! (" + amountReady + "/" + (Object.size(users) - 1) + ")");
-									if (amountReady > (Object.size(users) - 1) / 2 && !countdownStarted) {
+									io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " is ready to play! (" + amountReady + "/" + (Object.size(this.users) - 1) + ")");
+									if (amountReady > (Object.size(this.users) - 1) / 2 && !this.countdownStarted) {
 										if (amountReady > 1) {
-											io.sockets.emit("update", "Get ready to start the game!");
-											countdownStarted = true;
+											io.sockets.in(this.gameID).emit("update", "Get ready to start the game!");
+											this.countdownStarted = true;
 											var mult = 10;
 											for (var m = 0; m < 10; m++) {
-												setTimeout(function() {
-													io.sockets.emit("update", mult);
+												setTimeout(()  => {
+													io.sockets.in(this.gameID).emit("update", mult);
 													mult--;
 												}, m * 1000);
 											}
-											setTimeout(function() {
-												countdownStarted = false;
-												gameRunning = true;
+											setTimeout(()  => {
+												this.countdownStarted = false;
+												this.gameRunning = true;
 												var randNum = Math.floor(Math.random() * (1000000));
-												usersPlaying = $.grep(Object.keys(users), function(k) {
+												var users = this.users;
+												this.usersPlaying = $.grep(Object.keys(users), function(k) {
 													return users[k].ready == true;
 												});
-												for (var i = 0; i < usersPlaying.length; i++) {
-													users[usersPlaying[i]].socket.emit("ready", randNum);
-													users[usersPlaying[i]].ready = false;
-													users[usersPlaying[i]].lastUpdate = new Date();
+												for (var i = 0; i < this.usersPlaying.length; i++) {
+													this.users[this.usersPlaying[i]].socket.emit("ready", randNum);
+													this.users[this.usersPlaying[i]].ready = false;
+													this.users[this.usersPlaying[i]].lastUpdate = new Date();
 												}
 												
 											}, 5000);
-											setTimeout(function(){
-												for (var i = 0; i < usersPlaying.length; i++) {
-													users[usersPlaying[i]].lastUpdate = new Date();
+											setTimeout(()  => {
+												for (var i = 0; i < this.usersPlaying.length; i++) {
+													this.users[this.usersPlaying[i]].lastUpdate = new Date();
 												}
-												gameProcessInterval = setInterval(function(){
-													io.sockets.emit('gameInterval');
-													for (var i = 0; i < usersPlaying.length; i++) {
-															if(((new Date()) - users[usersPlaying[i]].lastUpdate) > 2000){
-																users[usersPlaying[i]].socket.broadcast.emit("update", 'Server detected "' + users[usersPlaying[i]].name + '" hacking, was kicked!');
-																users[usersPlaying[i]].socket.emit("update", "You were suspected of hacking, kicked!");
-																users[usersPlaying[i]].socket.disconnect();
+												this.gameProcessInterval = setInterval(()  => {
+													io.sockets.in(this.gameID).emit('gameInterval');
+													for (var i = 0; i < this.usersPlaying.length; i++) {
+															if(((new Date()) - this.users[this.usersPlaying[i]].lastUpdate) > 9000){
+																this.users[this.usersPlaying[i]].socket.broadcast.to(this.gameID).emit("update", 'Server detected "' + this.users[this.usersPlaying[i]].name + '" hacking, was kicked!');
+																this.users[this.usersPlaying[i]].socket.emit("update", "You were suspected of hacking, kicked!");
+																this.users[this.usersPlaying[i]].socket.disconnect();
 															}
 														}
 												}, 20);
-												gameUpdateInterval = setInterval(function() {
-													updateGameViews();
+												this.gameUpdateInterval = setInterval(()  => {
+													this.updateGameViews();
 												}, 250);
 												
 											},10000);
 										} else {
-											io.sockets.emit("update", "Need more than 1 person to start the game!");
+											io.sockets.in(this.gameID).emit("update", "Need more than 1 person to start the game!");
 										}
 									}
 								} else {
@@ -310,37 +300,37 @@ io.on('connection', function(socket) {
 							}
 						break;
 					case "/kick ":
-						if((Object.size(users) - 1) > 2){
-						if(!voting){
+						if((Object.size(this.users) - 1) > 2){
+						if(!this.voting){
 							for(var x = 0; x < 5; x++){
-								if(users[orderedSockets[x]].name != 0){
-									users[orderedSockets[x]].voted = false;	
+								if(this.users[this.orderedSockets[x]].name != 0){
+									this.users[this.orderedSockets[x]].voted = false;	
 								}
 							}
-							var arrayOfObject =  Object.keys(users).map(function(key) {return users[key];});
+							var arrayOfObject =  Object.keys(this.users).map(function(key) {return this.users[key];});
 							didYouMean.returnWinningObject = true;
-							userToKick = null;
-							userToKick = didYouMean(data.slice(6), arrayOfObject, "name");
-							if(userToKick != null){
-								voting = true;
-								users[socket.id].voted = true;
-								setTimeout(function() {
-									if(voting == true){
-										io.sockets.emit("update", "Kick vote was cancelled, ran out of time!");
-										voting = false;
-										kickVotes = 0;
-										kickVotesNo = 0;
+							this.userToKick = null;
+							this.userToKick = didYouMean(data.slice(6), arrayOfObject, "name");
+							if(this.userToKick != null){
+								this.voting = true;
+								this.users[socket.id].voted = true;
+								setTimeout(()   => {
+									if(this.voting == true){
+										io.sockets.in(this.gameID).emit("update", "Kick vote was cancelled, ran out of time!");
+										this.voting = false;
+										this.kickVotesYes = 0;
+										this.kickVotesNo = 0;
 									}
 								}, 20000);
-								io.sockets.emit("update", "A vote to kick " + userToKick.name + " has begun!");
-								io.sockets.emit("update", "Type /y to vote yes and /n to vote no!");
-								kickVotes = 1;
-								kickVotesNo = 0;
-								io.sockets.emit("update", kickVotes + " out of " + (Object.size(users) - 1) + " users voted to kick " + userToKick.name);
-								if(kickVotes == (Object.size(users) - 1)) {
-								io.sockets.emit("update" , userToKick.name + " was kicked!");
-								userToKick.socket.disconnect();
-								voting = false;
+								io.sockets.in(this.gameID).emit("update", "A vote to kick " + this.userToKick.name + " has begun!");
+								io.sockets.in(this.gameID).emit("update", "Type /y to vote yes and /n to vote no!");
+								this.kickVotesYes = 1;
+								this.kickVotesNo = 0;
+								io.sockets.in(this.gameID).emit("update", this.kickVotesYes + " out of " + (Object.size(this.users) - 1) + " users voted to kick " + this.userToKick.name);
+								if(this.kickVotesYes == (Object.size(this.users) - 1)) {
+								io.sockets.in(this.gameID).emit("update" , this.userToKick.name + " was kicked!");
+								this.userToKick.socket.disconnect();
+								this.voting = false;
 							}
 							}
 							else{
@@ -355,18 +345,18 @@ io.on('connection', function(socket) {
 						}
 						break;
 					case "/y":
-						if(voting && !users[socket.id].voted) {
+						if(this.voting && !this.users[socket.id].voted) {
 							socket.emit("update", "You voted yes to the kick vote!");
-							kickVotes += 1;
-							io.sockets.emit("update", kickVotes + " out of " + (Object.size(users) - 1) + " users voted to kick " + userToKick.name);
-							users[socket.id].voted = true;
-							if(kickVotes == (Object.size(users) - 1) - 1) {
-								userToKick.socket.disconnect();
-								voting = false;
-								io.sockets.emit("update", userToKick.name + " was kicked!");
+							this.kickVotesYes += 1;
+							io.sockets.in(this.gameID).emit("update", this.kickVotesYes + " out of " + (Object.size(this.users) - 1) + " users voted to kick " + this.userToKick.name);
+							this.users[socket.id].voted = true;
+							if(this.kickVotesYes == (Object.size(this.users) - 1) - 1) {
+								this.userToKick.socket.disconnect();
+								this.voting = false;
+								io.sockets.in(this.gameID).emit("update", this.userToKick.name + " was kicked!");
 							}
 						}
-						else if (!voting) {
+						else if (!this.voting) {
 							socket.emit("update", "There is no kick vote!");
 						}
 						else {
@@ -374,19 +364,19 @@ io.on('connection', function(socket) {
 						}
 						break;
 					case "/n":
-						if(voting && !users[socket.id].voted) {
-							kickVotesNo += 1;
+						if(this.voting && !this.users[socket.id].voted) {
+							this.kickVotesNo += 1;
 							socket.emit("update", "You voted no to the kick vote!");
-							io.sockets.emit("update", kickVotesNo + " out of " + (Object.size(users) - 1) + " users voted not to kick " + userToKick.name);
-							users[socket.id].voted = true;
-							if(kickVotesNo > kickVotes){
-								io.sockets.emit("update", "Kick vote was cancelled!");
-										voting = false;
-										kickVotes = 0;
-										kickVotesNo = 0;
+							io.sockets.in(this.gameID).emit("update", this.kickVotesNo + " out of " + (Object.size(this.users) - 1) + " users voted not to kick " + this.userToKick.name);
+							this.users[socket.id].voted = true;
+							if(this.kickVotesNo > this.kickVotesYes){
+								io.sockets.in(this.gameID).emit("update", "Kick vote was cancelled!");
+										this.voting = false;
+										this.kickVotesYes = 0;
+										this.kickVotesNo = 0;
 							}
 						}
-						else if(!voting) {
+						else if(!this.voting) {
 							socket.emit("update", "There is no kick vote!");
 						}
 						else {
@@ -399,38 +389,38 @@ io.on('connection', function(socket) {
 				}
 			}
 			else {
-				io.sockets.emit("updateChat", users[socket.id].name + ": " + data);
+				io.sockets.in(this.gameID).emit("updateChat", this.users[socket.id].name + ": " + data);
 			}
 		}
-	});
-	
-	socket.on("lost", function(){
-		if (users[socket.id] != undefined){
-		if(usersPlaying.length > 1 && $.inArray(socket.id, usersPlaying) != -1){
-			usersPlaying.remove(socket.id);
-			io.sockets.emit("update", users[socket.id].name + " lost the game!");
-			users[socket.id].gameBoard = "LOST";
-			if(usersPlaying.length == 1){
-			gameRunning = false;
-			clearInterval(gameUpdateInterval);
-			clearInterval(gameProcessInterval);
-			io.sockets.emit("gameOver");
-			io.sockets.emit("update", users[usersPlaying[0]].name + " won the game!");
+    }
+    
+    lost(socket, data){
+        if (this.users[socket.id] != undefined){
+		if(this.usersPlaying.length > 1 && $.inArray(socket.id, this.usersPlaying) != -1){
+			this.usersPlaying.remove(socket.id);
+			io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " lost the game!");
+			this.users[socket.id].gameBoard = "LOST";
+			if(this.usersPlaying.length == 1){
+			this.gameRunning = false;
+			clearInterval(this.gameUpdateInterval);
+			clearInterval(this.gameProcessInterval);
+			io.sockets.in(this.gameID).emit("gameOver");
+			io.sockets.in(this.gameID).emit("update", this.users[this.usersPlaying[0]].name + " won the game!");
 			for(var x = 0; x < 5; x++){
-			if(users[orderedSockets[x]].name != 0){
-				users[orderedSockets[x]].gameBoard = null;	
-				updateGameViews();
+			if(this.users[this.orderedSockets[x]].name != 0){
+				this.users[this.orderedSockets[x]].gameBoard = null;	
+				this.updateGameViews();
 			}
 			}
-			usersPlaying = [];
+			this.usersPlaying = [];
 			
 			}
 			}
 		}
-	});
-	
-	socket.on("power", function(data){
-		if (users[socket.id] != undefined){
+    }
+    
+    power(socket, data){
+        if (this.users[socket.id] != undefined){
 		var powerUpName;
 		switch(data[0]){
             case "A":
@@ -466,75 +456,93 @@ io.on('connection', function(socket) {
 			data[3 + k] = Math.random();
 		}
 		if(data[1] == "all"){
-		socket.broadcast.emit("clientPower", data);
+		socket.broadcast.to(this.gameID).emit("clientPower", data);
 		}else{
-			var targetSocket = $.grep(Object.keys(users), function (k) {
+			var users = this.users;
+			var targetSocket = $.grep(Object.keys(this.users), function (k) {
 				return users[k].name == data[1];
 			});
-			io.sockets.emit("update", users[socket.id].name + " used " + powerUpName + " on " + users[targetSocket[0]].name + "!");
+			io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " used " + powerUpName + " on " + this.users[targetSocket[0]].name + "!");
 			if(data[0] == "S"){
-				var gameBoard1 =users[targetSocket[0]].gameBoardStatic;
-				var gameBoard2 = users[socket.id].gameBoardStatic;
+				var gameBoard1 = this.users[targetSocket[0]].gameBoardStatic;
+				var gameBoard2 = this.users[socket.id].gameBoardStatic;
 				data[2] = gameBoard1;
 				socket.emit("clientPower", data);
 				data[2] = gameBoard2;
-				users[targetSocket[0]].socket.emit("clientPower", data);
+				this.users[targetSocket[0]].socket.emit("clientPower", data);
 			}else{
-				users[targetSocket[0]].socket.emit("clientPower", data);	
+				this.users[targetSocket[0]].socket.emit("clientPower", data);	
 			}
 			
 		}
 		}
-	});
-	
-	socket.on("serverLog", function(data){
-		if (users[socket.id] != undefined){
-		console.log(data);
-		}
-	});
-	
-	socket.on("disconnect", function() {
-		if (users[socket.id] != undefined) {
-			if(usersPlaying.length > 1 && $.inArray(socket.id, usersPlaying) != -1){
-			usersPlaying.remove(socket.id);
-			io.sockets.emit("update", users[socket.id].name + " lost the game!");
-			users[socket.id].gameBoard = "LOST";
-			if(usersPlaying.length == 1){
-			gameRunning = false;
-			clearInterval(gameUpdateInterval);
-			clearInterval(gameProcessInterval);
-			io.sockets.emit("gameOver");
-			io.sockets.emit("update", users[usersPlaying[0]].name + " won the game!");
+    }
+    
+    disconnect(socket, data){
+        if (this.users[socket.id] != undefined) {
+			if(this.usersPlaying.length > 1 && $.inArray(socket.id, this.usersPlaying) != -1){
+			this.usersPlaying.remove(socket.id);
+			io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " lost the game!");
+			this.users[socket.id].gameBoard = "LOST";
+			if(this.usersPlaying.length == 1){
+			this.gameRunning = false;
+			clearInterval(this.gameUpdateInterval);
+			clearInterval(this.gameProcessInterval);
+			io.sockets.in(this.gameID).emit("gameOver");
+			io.sockets.in(this.gameID).emit("update", this.users[this.usersPlaying[0]].name + " won the game!");
 			for(var x = 0; x < 5; x++){
-			if(users[orderedSockets[x]].name != 0){
-				users[orderedSockets[x]].gameBoard = null;	
-				updateGameViews();
+			if(this.users[this.orderedSockets[x]].name != 0){
+				this.users[this.orderedSockets[x]].gameBoard = null;	
+				this.updateGameViews();
 			}
 			}
-			usersPlaying = [];
+			this.usersPlaying = [];
 			
 			}
 			}
-			io.sockets.emit("update", users[socket.id].name + " has left the server.");
-			orderedSockets.splice(orderedSockets.indexOf(socket.id), 1);
-			delete users[socket.id];
-			updateUsernameLabels();
+			io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " has left the server.");
+			this.orderedSockets.splice(this.orderedSockets.indexOf(socket.id), 1);
+			delete this.users[socket.id];
+			this.updateUsernameLabels();
 			
+		}
+    }
+    
+    updateGameViews(){
+	for(var x = 0; x < 5; x++){
+		if(this.users[this.orderedSockets[x]].name != 0){
+		switch(x){
+			case 0:
+				this.users[this.orderedSockets[0]].socket.emit("updateViews", [this.users[this.orderedSockets[1]].gameBoard, this.users[this.orderedSockets[2]].gameBoard, this.users[this.orderedSockets[3]].gameBoard, this.users[this.orderedSockets[4]].gameBoard]);
+				break;
+			case 1:
+				this.users[this.orderedSockets[1]].socket.emit("updateViews", [this.users[this.orderedSockets[0]].gameBoard, this.users[this.orderedSockets[2]].gameBoard, this.users[this.orderedSockets[3]].gameBoard, this.users[this.orderedSockets[4]].gameBoard]);
+				break;
+			case 2:
+				this.users[this.orderedSockets[2]].socket.emit("updateViews", [this.users[this.orderedSockets[0]].gameBoard, this.users[this.orderedSockets[1]].gameBoard, this.users[this.orderedSockets[3]].gameBoard, this.users[this.orderedSockets[4]].gameBoard]);
+				break;
+			case 3:
+				this.users[this.orderedSockets[3]].socket.emit("updateViews", [this.users[this.orderedSockets[0]].gameBoard, this.users[this.orderedSockets[1]].gameBoard, this.users[this.orderedSockets[2]].gameBoard, this.users[this.orderedSockets[4]].gameBoard]);
+				break;
+			case 4:
+				this.users[this.orderedSockets[4]].socket.emit("updateViews", [this.users[this.orderedSockets[0]].gameBoard, this.users[this.orderedSockets[1]].gameBoard, this.users[this.orderedSockets[2]].gameBoard, this.users[this.orderedSockets[3]].gameBoard]);
+				break;
 		}	
-	});
-	
-});
+	}
+	}
+}
 
 
-function submitUsernameValidation(socket, username){
-        if(($.grep(Object.keys(users), function (k) {return users[k].name == username; }).length == 0)){
-            if(username.match(usernamevalid)){
-                users[socket.id] = {name: username, socket: socket, ready: false};
-                orderedSockets[orderedSockets.length] = socket.id;
-				socket.emit("update", "Welcome " + users[socket.id].name + ", server communication established.");
+    submitUsernameValidation(socket, username){
+    	var usersArray = this.users;
+        if(($.grep(Object.keys(this.users), function (k) {return usersArray[k].name == username; }).length == 0)){
+            if(username.match(this.usernamevalid)){
+                this.users[socket.id] = {name: username, socket: socket, ready: false};
+                this.orderedSockets[this.orderedSockets.length] = socket.id;
+				socket.emit("update", "Welcome " + this.users[socket.id].name + ", server communication established.");
 				socket.emit("update", 'To ready up, type /ready!')
-				socket.broadcast.emit("update", users[socket.id].name + " connected to the server!");
-				updateUsernameLabels();
+				socket.broadcast.to(this.gameID).emit("update", this.users[socket.id].name + " connected to the server!");
+				this.updateUsernameLabels();
             }else{
                 socket.emit("update", "Illegal Username, please use normal characters.");
 				socket.disconnect();
@@ -543,72 +551,177 @@ function submitUsernameValidation(socket, username){
             socket.emit("update", "Username already in use, please choose something else.");
 			socket.disconnect();
         }
-}
-
-Object.size = function(obj) {
-    var size = 0, key;
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) size++;
     }
-    return size;
-};
-
-Array.prototype.remove = function() {
-    var what, a = arguments, L = a.length, ax;
-    while (L && this.length) {
-        what = a[--L];
-        while ((ax = this.indexOf(what)) !== -1) {
-            this.splice(ax, 1);
-        }
-    }
-    return this;
-};
-
-
-function updateUsernameLabels(){
+    
+    
+    updateUsernameLabels(){
 	for(var x = 0; x < 5; x++){
-		if(users[orderedSockets[x]].name != 0){
+		if(this.users[this.orderedSockets[x]].name != 0){
 		switch(x){
 			case 0:
-				users[orderedSockets[0]].socket.emit("updateLabels", [users[orderedSockets[0]].name, users[orderedSockets[1]].name, users[orderedSockets[2]].name, users[orderedSockets[3]].name, users[orderedSockets[4]].name]);
+				this.users[this.orderedSockets[0]].socket.emit("updateLabels", [this.users[this.orderedSockets[0]].name, this.users[this.orderedSockets[1]].name, this.users[this.orderedSockets[2]].name, this.users[this.orderedSockets[3]].name, this.users[this.orderedSockets[4]].name]);
 				break;
 			case 1:
-				users[orderedSockets[1]].socket.emit("updateLabels", [users[orderedSockets[1]].name, users[orderedSockets[0]].name, users[orderedSockets[2]].name, users[orderedSockets[3]].name, users[orderedSockets[4]].name]);
+				this.users[this.orderedSockets[1]].socket.emit("updateLabels", [this.users[this.orderedSockets[1]].name, this.users[this.orderedSockets[0]].name, this.users[this.orderedSockets[2]].name, this.users[this.orderedSockets[3]].name, this.users[this.orderedSockets[4]].name]);
 				break;
 			case 2:
-				users[orderedSockets[2]].socket.emit("updateLabels", [users[orderedSockets[2]].name, users[orderedSockets[0]].name, users[orderedSockets[1]].name, users[orderedSockets[3]].name, users[orderedSockets[4]].name]);
+				this.users[this.orderedSockets[2]].socket.emit("updateLabels", [this.users[this.orderedSockets[2]].name, this.users[this.orderedSockets[0]].name, this.users[this.orderedSockets[1]].name, this.users[this.orderedSockets[3]].name, this.users[this.orderedSockets[4]].name]);
 				break;
 			case 3:
-				users[orderedSockets[3]].socket.emit("updateLabels", [users[orderedSockets[3]].name, users[orderedSockets[0]].name, users[orderedSockets[1]].name, users[orderedSockets[2]].name, users[orderedSockets[4]].name]);
+				this.users[this.orderedSockets[3]].socket.emit("updateLabels", [this.users[this.orderedSockets[3]].name, this.users[this.orderedSockets[0]].name, this.users[this.orderedSockets[1]].name, this.users[this.orderedSockets[2]].name, this.users[this.orderedSockets[4]].name]);
 				break;
 			case 4:
-				users[orderedSockets[4]].socket.emit("updateLabels", [users[orderedSockets[4]].name, users[orderedSockets[0]].name, users[orderedSockets[1]].name, users[orderedSockets[2]].name, users[orderedSockets[3]].name]);
+				this.users[this.orderedSockets[4]].socket.emit("updateLabels", [this.users[this.orderedSockets[4]].name, this.users[this.orderedSockets[0]].name, this.users[this.orderedSockets[1]].name, this.users[this.orderedSockets[2]].name, this.users[this.orderedSockets[3]].name]);
 				break;
 		}	
 	}
 	}
 }
 
-function updateGameViews(){
-	for(var x = 0; x < 5; x++){
-		if(users[orderedSockets[x]].name != 0){
-		switch(x){
-			case 0:
-				users[orderedSockets[0]].socket.emit("updateViews", [users[orderedSockets[1]].gameBoard, users[orderedSockets[2]].gameBoard, users[orderedSockets[3]].gameBoard, users[orderedSockets[4]].gameBoard]);
-				break;
-			case 1:
-				users[orderedSockets[1]].socket.emit("updateViews", [users[orderedSockets[0]].gameBoard, users[orderedSockets[2]].gameBoard, users[orderedSockets[3]].gameBoard, users[orderedSockets[4]].gameBoard]);
-				break;
-			case 2:
-				users[orderedSockets[2]].socket.emit("updateViews", [users[orderedSockets[0]].gameBoard, users[orderedSockets[1]].gameBoard, users[orderedSockets[3]].gameBoard, users[orderedSockets[4]].gameBoard]);
-				break;
-			case 3:
-				users[orderedSockets[3]].socket.emit("updateViews", [users[orderedSockets[0]].gameBoard, users[orderedSockets[1]].gameBoard, users[orderedSockets[2]].gameBoard, users[orderedSockets[4]].gameBoard]);
-				break;
-			case 4:
-				users[orderedSockets[4]].socket.emit("updateViews", [users[orderedSockets[0]].gameBoard, users[orderedSockets[1]].gameBoard, users[orderedSockets[2]].gameBoard, users[orderedSockets[3]].gameBoard]);
-				break;
-		}	
-	}
-	}
+
+
 }
+
+console.log('Obfuscating/Protecting Javascript...');
+function obfuscate(){
+gamejs = JavaScriptObfuscator.obfuscate(
+    fs.readFileSync(__dirname + '/public/game.js', "utf8"),
+    {
+    compact: true,
+    controlFlowFlattening: false,
+    debugProtection: false,
+    debugProtectionInterval: false,
+    disableConsoleOutput: false,
+    rotateStringArray: true,
+    selfDefending: true,
+    stringArray: false,
+    stringArrayEncoding: false,
+    unicodeEscapeSequence: true
+});
+    
+}
+obfuscate();
+    
+console.log('Obfuscation Finished! Ready to serve!');
+
+app.get('/game.js',function(req,res){
+	if(doObfuscate){
+   res.send(gamejs.getObfuscatedCode());
+	}else{
+		res.send(fs.readFileSync(__dirname + '/public/game.js', "utf8"));
+	}
+});
+
+
+app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
+
+app.get('/', function(req, res) {
+	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date());
+	res.sendFile(__dirname + '/public/gameselector.html');
+});
+
+app.get('/*', function(req, res) {
+	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date());
+	res.sendFile(__dirname + '/public/');
+});
+
+http.listen(process.env.PORT, process.env.IP);
+
+var gameServer1 = new gameServer('game1');
+var gameServer2 = new gameServer('game2');
+
+var people = [];
+
+io.on('connection', function(socket) {
+	
+	socket.on('gameUpdate', function(data){
+		gameServer1.gameUpdate(socket, data);
+	});
+  
+  
+	socket.on('userLogon', function(data) {
+		if(data[1] == '/8wyphr287ybtvo8r7y2r8y2r78horgb28lgk62r'){
+			socket.join('game1');
+			people[socket.id] = 'game1';
+		}else if(data[1] == '/9034iueoasjdklasasdiowadiojsaoieufu90'){
+			socket.join('game2');
+			people[socket.id] = 'game2';
+		}else{
+			socket.emit('update', 'invalid game URL');
+			socket.disconnect();
+		}
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.userLogon(socket, data[0]);
+				break;
+			case 'game2':
+				gameServer2.userLogon(socket, data[0]);
+				break;
+		}
+	});
+	
+	socket.on('hackingDetected', function(data){
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.hackingDetected(socket, data);
+				break;
+			case 'game2':
+				gameServer2.hackingDetected(socket, data);
+				break;
+		}
+	});
+	
+	socket.on('chatMsg', function(data) {
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.chatMessage(socket, data);
+				break;
+			case 'game2':
+				gameServer2.chatMessage(socket, data);
+				break;
+		}
+	});
+	
+	socket.on("lost", function(data){
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.lost(socket, data);
+				break;
+			case 'game2':
+				gameServer2.lost(socket, data);
+				break;
+		}
+	});
+	
+	socket.on("power", function(data){
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.power(socket, data);
+				break;
+			case 'game2':
+				gameServer2.power(socket, data);
+				break;
+		}
+	});
+	
+	
+	socket.on("disconnect", function(data) {
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.disconnect(socket, data);
+				break;
+			case 'game2':
+				gameServer2.disconnect(socket, data);
+				break;
+		}
+		delete people[socket.id];
+	});
+	
+});
+
+
+
+
+
+
+
