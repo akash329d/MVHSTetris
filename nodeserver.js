@@ -5,7 +5,7 @@ global gameServer
 var express = require("express");
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http, {'pingInterval': 7500, 'pingTimeout': 15000});
 var fs = require("fs");
 var JavaScriptObfuscator = require('javascript-obfuscator');
 var didYouMean = require("didyoumean");
@@ -196,10 +196,13 @@ class gameServer{
     
     gameUpdate(socket, data){
         if (this.users[socket.id] != undefined){
-	    this.users[socket.id].lastUpdate = new Date();
 	    this.users[socket.id].gameBoard = data[0];	
 	    this.users[socket.id].gameBoardStatic = data[1];	
 	}
+    }
+    
+    userAmount(){
+    	return (Object.size(this.users) - 1);
     }
     
     userLogon(socket, data){
@@ -277,13 +280,6 @@ class gameServer{
 												}
 												this.gameProcessInterval = setInterval(()  => {
 													io.sockets.in(this.gameID).emit('gameInterval');
-													for (var i = 0; i < this.usersPlaying.length; i++) {
-															if(((new Date()) - this.users[this.usersPlaying[i]].lastUpdate) > 9000){
-																this.users[this.usersPlaying[i]].socket.broadcast.to(this.gameID).emit("update", 'Server detected "' + this.users[this.usersPlaying[i]].name + '" hacking, was kicked!');
-																this.users[this.usersPlaying[i]].socket.emit("update", "You were suspected of hacking, kicked!");
-																this.users[this.usersPlaying[i]].socket.disconnect();
-															}
-														}
 												}, 20);
 												this.gameUpdateInterval = setInterval(()  => {
 													this.updateGameViews();
@@ -616,8 +612,10 @@ app.get('/game.js',function(req,res){
 app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
 
 app.get('/', function(req, res) {
-	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date());
-	res.sendFile(__dirname + '/public/gameselector.html');
+	var string = fs.readFileSync(__dirname + '/public/gameselector.html', "utf8");
+	string = string.replace('01923843290game1amount', gameServer1.userAmount());
+	string = string.replace('01923843290game2amount', gameServer2.userAmount());
+	res.send(string);
 });
 
 app.get('/*', function(req, res) {
@@ -632,10 +630,18 @@ var gameServer2 = new gameServer('game2');
 
 var people = [];
 
+
 io.on('connection', function(socket) {
 	
 	socket.on('gameUpdate', function(data){
-		gameServer1.gameUpdate(socket, data);
+		switch(people[socket.id]){
+			case 'game1':
+				gameServer1.gameUpdate(socket, data);
+				break;
+			case 'game2':
+				gameServer2.gameUpdate(socket, data);
+				break;
+		}
 	});
   
   

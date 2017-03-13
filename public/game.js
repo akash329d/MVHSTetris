@@ -747,7 +747,7 @@ var users = [];
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
   socket.emit('userLogon', [user, window.location.pathname]);
   
-  //Inspect detection
+//Inspect detection
 var element = new Image();
 Object.defineProperty(element, 'id', {
   get: function () {
