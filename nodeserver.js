@@ -303,7 +303,8 @@ class gameServer{
 									this.users[this.orderedSockets[x]].voted = false;	
 								}
 							}
-							var arrayOfObject =  Object.keys(this.users).map(function(key) {return this.users[key];});
+							var theUsers = this.users;
+							var arrayOfObject =  Object.keys(this.users).map(function(key) {return theUsers[key];});
 							didYouMean.returnWinningObject = true;
 							this.userToKick = null;
 							this.userToKick = didYouMean(data.slice(6), arrayOfObject, "name");
