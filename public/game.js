@@ -5,7 +5,16 @@
   */
 "use strict";
 
-
+function getInfo() {
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'A - Adds a line to the targeted field' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'C - Clears a line from the targeted field' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'D - Darkens the targeted field' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'E - Earthquakes happen in the targeted field' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'I - Inverts the controls of the targeted player' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'N - Nukes clear out the targeted field' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'R - Randomly clears blocks from the targeted field' + '</li>');
+    $("#messageList").append('<li class="blue-text text-darken-2">' + 'S - Switches fields with the targeted player' + '</li>');
+}
 
 (function(){
 var KEY = { ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
@@ -16,8 +25,8 @@ window.onbeforeunload = function() {
         window.location = '/';
     }, 0); 
     window.onbeforeunload = null; // necessary to prevent infinite loop, that kills your browser 
-}
-  
+};
+
 console.log('MVHS Tetris Loaded!');
 
 class Block {
@@ -791,7 +800,7 @@ socket.on('disconnect', function(){
   });
 
 function addChatMessageServer(message){
-  $("#messageList").append('<li class="blue-text text-darken-2">' + message + '</li>');
+  $("#messageList").append('<li class="red-text text-darken-2">' + message + '</li>');
 }
 
 function addChatMessage(message){

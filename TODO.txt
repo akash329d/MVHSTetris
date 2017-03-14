@@ -19,3 +19,12 @@ heroku ps:scale web=0
 
 Amount of heroku hours left:
 heroku ps -a mvhstetris
+
+A - Adds a line to the targeted field
+C - Clears a line from the targeted field
+D - Darkens the targeted field
+E - Earthquakes happen in the targeted field
+I - Inverts the controls of the targeted player
+N - Nukes clear out the targeted field
+R - Randomly clears blocks from the targeted field
+S - Switches fields with the targeted player

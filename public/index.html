@@ -40,7 +40,10 @@
 			</div>
 		</div>
 		<div class="row" style="margin-top: -1em">
-			<canvas class="col s1 offset-s1" height="300" width = "300" id="nextPieceCanvas" style="padding: 0rem;margin-right:.5em; user-select: none;"></canvas>
+			<div class="row col s1 offset-s1">
+			<canvas class="col s12" height="300" width = "300" id="nextPieceCanvas" style="padding: 0rem;margin-right:.5em; user-select: none;"></canvas>
+			<a class="waves-effect waves-light btn col s12 light-green darken-4" onclick="getInfo();">Powers</a>
+			</div>
 			<div class="row col s2">
 				<canvas class="col s12 z-depth-2" height="600" width = "300" id="mainCanvas" style="border:2px solid;padding: 0rem; background-color:#E4E4EC;border-color: grey;border-radius: 10px;" tabindex='1'></canvas> <br>
 				<canvas class="col s12 z-depth-2" height="35" width = "300" id="powerUpsCanvas" style="border:2px solid;padding-top: 0rem; background-color:#E4E4EC;border-color: grey;border-radius: 4px;margin-top: 10px"></canvas>
@@ -59,7 +62,7 @@
 					<div class="col s1"></div>
 					<div class="col s11 z-depth-1" id="textBox" style="height:12.75vw;border-style: solid;border-color: grey;overflow: hidden;overflow-y: scroll;">
 						<ul id="messageList" style="text-size: 5px">
-							<li class="blue-text text-darken-2">Connecting...</li>
+							<li class="red-text text-darken-2">Connecting...</li>
 						</ul>
 					</div>
 					<div class="col s1"></div>

@@ -324,11 +324,11 @@ class gameServer{
 								this.kickVotesYes = 1;
 								this.kickVotesNo = 0;
 								io.sockets.in(this.gameID).emit("update", this.kickVotesYes + " out of " + (Object.size(this.users) - 1) + " users voted to kick " + this.userToKick.name);
-								if(this.kickVotesYes == (Object.size(this.users) - 1)) {
-								io.sockets.in(this.gameID).emit("update" , this.userToKick.name + " was kicked!");
-								this.userToKick.socket.disconnect();
-								this.voting = false;
-							}
+								if(this.kickVotesYes >= (Object.size(this.users) / 2)) {
+									io.sockets.in(this.gameID).emit("update" , this.userToKick.name + " was kicked!");
+									this.userToKick.socket.disconnect();
+									this.voting = false;
+								}
 							}
 							else{
 								socket.emit("update", "That username wasn't recognized!");
