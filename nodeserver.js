@@ -9,6 +9,7 @@ var io = require('socket.io')(http, {'pingInterval': 7500, 'pingTimeout': 15000}
 var fs = require("fs");
 var JavaScriptObfuscator = require('javascript-obfuscator');
 var didYouMean = require("didyoumean");
+var censorjs = require('censorjs');
 didYouMean.threshold = null;
 var $;
 
@@ -386,6 +387,7 @@ class gameServer{
 				}
 			}
 			else {
+				data = censorjs.clean(data);
 				io.sockets.in(this.gameID).emit("updateChat", this.users[socket.id].name + ": " + data);
 			}
 		}
