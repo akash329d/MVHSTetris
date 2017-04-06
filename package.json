@@ -14,7 +14,7 @@
     "socket.io": "^1.7.2",
     "node-minify": "^2.0.3",
     "didyoumean": "^1.2.1",
-    "censorjs": "^1.1.1",
+    "censorjs": "^1.1.1"
   },
   "devDependencies": {},
   "scripts": {
