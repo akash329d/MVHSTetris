@@ -88,7 +88,7 @@ class TetrisGame {
 		this.keysToProcess = [];
 		this.powerUpArray = ['U', 'U', 'U'];
 	}
-	//Created By Akash
+	//Created By XM1014
 	getBlocks(piece,curBoard, fn){
 	    var blocks = [];
 	    
@@ -251,7 +251,7 @@ class TetrisGame {
 	}
 	
 	
-	//Created By Akash
+	//Created By XM1014
 	canMove(dir) {
 	    var canMove = true;
 	    var block = this.getBlocks(this.thispiece,this.board, function(x, y, theboard, curPiece){});
@@ -280,7 +280,7 @@ class TetrisGame {
 	    }
 	    return canMove;
 	}
-	//Created By Akash
+	//Created By XM1014
 	getNextPiece(){
         var seed1 = (Math.seed * 9301 + 49297) % 233280;
         var rnd = seed1 / 233280.0;
@@ -335,12 +335,12 @@ class TetrisGame {
 
 	}
 	
-	//Created By Akash
+	//Created By XM1014
 	get boardVar(){
 	    return this.board;
 	}
 	
-	//Created By Akash
+	//Created By XM1014
 	updateDynamicBoard(){
 	    var staticBoardString = JSON.stringify(this.boardStatic);
 		this.board = JSON.parse(staticBoardString);
@@ -349,7 +349,7 @@ class TetrisGame {
 		    });
 	}
 	
-	//Created By Akash
+	//Created By XM1014
 	process() {
 	    if(!(JSON.stringify(this.boardStatic[0]) == JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))){
             this.hasLost = true;
@@ -655,7 +655,7 @@ class TetrisGame {
 	}
 	
 	
-	//Created by Akash
+	//Created by XM1014
 	isOccupied(xpos, ypos){
 	    if(this.boardStatic[ypos] == undefined){
 	        return 1;
@@ -863,7 +863,7 @@ var nouns= ["ninja","chair","pancake","statue","unicorn","rainbows","laser","sen
     "sawfiler","shopforeman","soaper","stationaryengineer","wheelwright","woodworkers"];
 var users = [];
 
-//Created By Akash
+//Created By XM1014
   var socket = io();
   var user = prompt("Please enter a username", 
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
@@ -887,18 +887,18 @@ console.log('%cNice Try :P', element);
     users = names;
     updatePlayerLabels(names[0], names[1], names[2], names[3], names[4]);
   });
-  //Created By Akash
+  //Created By XM1014
 socket.on("update", function(msg) {
 			 addChatMessageServer(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
-		//Created By Akash
+		//Created By XM1014
 socket.on("updateChat", function(msg) {
 			 addChatMessage(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
 
-//Created by Akash
+//Created by XM1014
 $( document ).ready(function() {
 		  $(document).on("keypress", "#chat", function(e) {
      if (e.which == 13 && ($('#chat').val() != '')) {
@@ -909,22 +909,22 @@ $( document ).ready(function() {
 		  document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 });
 
-//Created By Akash
+//Created By XM1014
 socket.on('disconnect', function(){
       addChatMessageServer('You disconnected!');
   });
 
-//Created By Akash
+//Created By XM1014
 function addChatMessageServer(message){
   $("#messageList").append('<li class="red-text text-darken-2">' + message + '</li>');
 }
 
-//Created By Akash
+//Created By XM1014
 function addChatMessage(message){
   $("#messageList").append('<li>' + message + '</li>');
 }
 
-//Created By Akash
+//Created By XM1014
 function updatePlayerLabels(main, player2, player3, player4, player5){
   if(player2 == null || player2 == undefined){
     player2 = "";
@@ -1130,7 +1130,7 @@ function drawPowerUps(canvas1, array){
     }
 }
 
-//Created By Akash
+//Created By XM1014
 function drawLost(canvas){
     var ctx = canvas.getContext("2d");
     clearCanvas(canvas);
@@ -1141,7 +1141,7 @@ function drawLost(canvas){
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2);
 }
 
-//Created By Akash
+//Created By XM1014
 function drawWon(canvas){
     var ctx = canvas.getContext("2d");
     clearCanvas(canvas);
@@ -1201,7 +1201,7 @@ function drawNextPiece(piece){
         }
 }
 
-//Created By Akash
+//Created By XM1014
 function drawBlockNextPiece(x,y, canvas, color){
     var height = canvas.height;
     var width = canvas.width;
@@ -1287,13 +1287,13 @@ function keydown(e){
     e.preventDefault();
 }
 
-//Created By Akash
+//Created By XM1014
 function clearCanvas(canvas){
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
 
-//Created By Akash
+//Created By XM1014
 function drawBlock(x,y, canvas, color){
     var height = canvas.height;
     var width = canvas.width;
@@ -1303,7 +1303,7 @@ function drawBlock(x,y, canvas, color){
     canvas.strokeRect(x*(width/10), y*(height/20), width/10, height/20);
 }
 
-//Created By Akash
+//Created By XM1014
 function updateCanvasFromArray(board, canvas){
     var height = canvas.height;
     var width = canvas.width;
@@ -1395,7 +1395,7 @@ function updateCanvasFromArray(board, canvas){
 	}
 }
 
-//Created by Akash
+//Created by XM1014
 socket.on('updateViews', function(data) {
     clearCanvas(canvasObj[1]);
     clearCanvas(canvasObj[2]);
