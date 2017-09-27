@@ -5,6 +5,7 @@
   */
 "use strict";
 
+//Created by Willis
 function getInfo() {
     $("#messageList").append('<li class="blue-text text-darken-2">' + 'A - Adds a line to the targeted field' + '</li>');
     $("#messageList").append('<li class="blue-text text-darken-2">' + 'C - Clears a line from the targeted field' + '</li>');
@@ -29,6 +30,7 @@ window.onbeforeunload = function() {
 
 console.log('MVHS Tetris Loaded!');
 
+//Created By Willis
 class Block {
 	constructor(row1, row2, row3, row4, color, idNum) {
 		this.represent = [];
@@ -84,9 +86,9 @@ class TetrisGame {
 		}
 		this.thispiece = this.nextPiece;
 		this.keysToProcess = [];
-		this.powerUpArray = [];
+		this.powerUpArray = ['U', 'U', 'U'];
 	}
-	
+	//Created By Akash
 	getBlocks(piece,curBoard, fn){
 	    var blocks = [];
 	    
@@ -104,6 +106,7 @@ class TetrisGame {
 	    return blocks;
 	}
 	
+	//Created By Willis
 	get rotate(){
         switch(this.thispiece.idNum) {
             case 1:
@@ -247,6 +250,8 @@ class TetrisGame {
         
 	}
 	
+	
+	//Created By Akash
 	canMove(dir) {
 	    var canMove = true;
 	    var block = this.getBlocks(this.thispiece,this.board, function(x, y, theboard, curPiece){});
@@ -275,7 +280,7 @@ class TetrisGame {
 	    }
 	    return canMove;
 	}
-	
+	//Created By Akash
 	getNextPiece(){
         var seed1 = (Math.seed * 9301 + 49297) % 233280;
         var rnd = seed1 / 233280.0;
@@ -284,6 +289,7 @@ class TetrisGame {
 	    return this.bag[randNum];
 	}
 	
+	//Created by Willis
 	newBlock(blockType){
 	    switch(blockType){
 	        case 'i':
@@ -303,6 +309,7 @@ class TetrisGame {
 	    }
 	}
 	
+	//Created By Willis
 	get nextPiece(){
 		if (this.bag.length === 0) {
 			this.bag = [this.newBlock('i'), this.newBlock('i'), this.newBlock('i'), this.newBlock('i'),
@@ -328,10 +335,12 @@ class TetrisGame {
 
 	}
 	
+	//Created By Akash
 	get boardVar(){
 	    return this.board;
 	}
 	
+	//Created By Akash
 	updateDynamicBoard(){
 	    var staticBoardString = JSON.stringify(this.boardStatic);
 		this.board = JSON.parse(staticBoardString);
@@ -340,6 +349,7 @@ class TetrisGame {
 		    });
 	}
 	
+	//Created By Akash
 	process() {
 	    if(!(JSON.stringify(this.boardStatic[0]) == JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))){
             this.hasLost = true;
@@ -374,6 +384,7 @@ class TetrisGame {
         }
 	}
 	
+	//Created By Willis
 	clearLines(){
 	    var amountOfLinesCleared = 0;
 	    for(var z = 0; z < this.boardStatic.length; z++){
@@ -412,6 +423,9 @@ class TetrisGame {
                         case "darkness":
                             this.powerUpArray.push("D");
                             break;
+                        case "upsideDown":
+                            this.powerUpArray.push("U");
+                            break;
                         default:
                             break;
                     }
@@ -428,9 +442,10 @@ class TetrisGame {
 	}
 	
 	
+	//Created by Willis
 	spawnPowerUps(amount){
 	    var blocksAvailable = [];
-	    var powerUps = ["addLine", "clearLine", "switch", "earthquake", "nuke", "darkness", "invertedControls", "randomClear"];
+	    var powerUps = ["addLine", "clearLine", "switch", "earthquake", "nuke", "darkness", "invertedControls", "randomClear", "upsideDown"];
 	    for(var x = 0; x < 20; x++){
         for(var p = 0; p < 10; p++){
          if(this.boardStatic[x][p] != 0 && this.boardStatic[x][p].charAt(0) == "#"){
@@ -448,6 +463,7 @@ class TetrisGame {
 	    }
 	}
 	
+	//Created By Willis
 	handlePower(data){
 	    switch(data[0]){
             case "A":
@@ -521,10 +537,103 @@ class TetrisGame {
                 	}
                 }
                 break;
-        }
+            case "U":
+                var canvas = canvasObj[0];
+                var height = canvas.height;
+                var width = canvas.width;
+                var textString;
+                var textWidth;
+                var board = this.boardStatic;
+                var ctx = canvas.getContext("2d");
+                for(x = 0; x < 20; x++){
+                    for(p = 0; p < 10; p++){
+                        switch(board[x][p]) {
+                            case "addLine":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "A";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "clearLine":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "C";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "switch":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "S";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "invertedControls":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "I";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "earthquake":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "E";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "nuke":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "N";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "randomClear":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "R";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "darkness":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "D";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case "upsideDown":
+                                drawBlock([p],[20 - x], canvas, "#cccccc");
+                                ctx.fillStyle = "#000000";
+                                ctx.font = '30px roboto';
+                                textString = "U";
+                                textWidth = ctx.measureText(textString).width;
+                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
+                                break;
+                            case 0:
+                                break;
+                            default:
+                                drawBlock([p],[20 - x], canvas, board[x][p]);
+                                break;
+                        }
+                	}
+                }
+                break;
+	    }
 	}
 	
 	
+	//Created By Willis
 	moveBlock(piece, dir){
 	    switch(dir){
 	        case 'right':
@@ -546,7 +655,7 @@ class TetrisGame {
 	}
 	
 	
-	
+	//Created by Akash
 	isOccupied(xpos, ypos){
 	    if(this.boardStatic[ypos] == undefined){
 	        return 1;
@@ -560,6 +669,7 @@ class TetrisGame {
 	    }
 	}
 	
+	//Created by Willis
 	keyPressHandler(key){
         switch(key){
             case KEY.DOWN:
@@ -592,6 +702,7 @@ class TetrisGame {
     }
 }
 
+//Created By Willis
 Math.seededRandom = function(max, min) {
     max = max || 1;
     min = min || 0;
@@ -602,6 +713,7 @@ Math.seededRandom = function(max, min) {
     return min + rnd * (max - min);
 };
 
+//Created by Willis
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -619,7 +731,7 @@ function shuffle(array) {
 }
 
 
-    
+//Github Adjective And Noun Array Library
 var adjectives= ["aback","abaft","abandoned","abashed","aberrant",
     "abhorrent","abiding","abject","ablaze","able","abnormal","aboard",
     "aboriginal","abortive","abounding","abrasive","abrupt","absent",
@@ -751,12 +863,13 @@ var nouns= ["ninja","chair","pancake","statue","unicorn","rainbows","laser","sen
     "sawfiler","shopforeman","soaper","stationaryengineer","wheelwright","woodworkers"];
 var users = [];
 
+//Created By Akash
   var socket = io();
   var user = prompt("Please enter a username", 
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
   socket.emit('userLogon', [user, window.location.pathname]);
   
-//Inspect detection
+//Inspect detection - Github
 var element = new Image();
 Object.defineProperty(element, 'id', {
   get: function () {
@@ -774,17 +887,18 @@ console.log('%cNice Try :P', element);
     users = names;
     updatePlayerLabels(names[0], names[1], names[2], names[3], names[4]);
   });
-  
+  //Created By Akash
 socket.on("update", function(msg) {
 			 addChatMessageServer(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
-		
+		//Created By Akash
 socket.on("updateChat", function(msg) {
 			 addChatMessage(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
 
+//Created by Akash
 $( document ).ready(function() {
 		  $(document).on("keypress", "#chat", function(e) {
      if (e.which == 13 && ($('#chat').val() != '')) {
@@ -795,18 +909,22 @@ $( document ).ready(function() {
 		  document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 });
 
+//Created By Akash
 socket.on('disconnect', function(){
       addChatMessageServer('You disconnected!');
   });
 
+//Created By Akash
 function addChatMessageServer(message){
   $("#messageList").append('<li class="red-text text-darken-2">' + message + '</li>');
 }
 
+//Created By Akash
 function addChatMessage(message){
   $("#messageList").append('<li>' + message + '</li>');
 }
 
+//Created By Akash
 function updatePlayerLabels(main, player2, player3, player4, player5){
   if(player2 == null || player2 == undefined){
     player2 = "";
@@ -906,6 +1024,7 @@ function process(){
 }
 
 
+//Created by Willis
 function drawPowerUps(canvas1, array){
     clearCanvas(canvas1);
     for(var o = 0; o < array.length; o++){
@@ -997,10 +1116,21 @@ function drawPowerUps(canvas1, array){
                     textWidth = ctx.measureText(textString).width;
                     ctx.fillText(textString, o*(width/8) + (((width/8)/2.5) - (textWidth/2)), height - 7.5);
                     break;
+                case "U":
+                    ctx.fillStyle = "grey";
+                    ctx.fillRect(o*(width/8), 0*(height/20), width/10, height);
+                    ctx.strokeRect(o*(width/8), 0*(height/20), width/10, height);
+                    ctx.fillStyle = "#000000";
+                    ctx.font = '30px roboto';
+                    textString = "U";
+                    textWidth = ctx.measureText(textString).width;
+                    ctx.fillText(textString, o*(width/8) + (((width/8)/2.5) - (textWidth/2)), height - 7.5);
+                    break;
 	        }
     }
 }
 
+//Created By Akash
 function drawLost(canvas){
     var ctx = canvas.getContext("2d");
     clearCanvas(canvas);
@@ -1011,6 +1141,7 @@ function drawLost(canvas){
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2);
 }
 
+//Created By Akash
 function drawWon(canvas){
     var ctx = canvas.getContext("2d");
     clearCanvas(canvas);
@@ -1021,6 +1152,7 @@ function drawWon(canvas){
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2);
 }
 
+//Created By Willis
 function drawNextPiece(piece){
     clearCanvas(canvasObj[5]);
     switch(piece.idNum) {
@@ -1069,6 +1201,7 @@ function drawNextPiece(piece){
         }
 }
 
+//Created By Akash
 function drawBlockNextPiece(x,y, canvas, color){
     var height = canvas.height;
     var width = canvas.width;
@@ -1078,6 +1211,7 @@ function drawBlockNextPiece(x,y, canvas, color){
     canvas.strokeRect(x*(width/4), y*(height/4), width/4, height/4);
 }
 
+//Created By Willis
 function keydown(e){
     var extraVar;
     switch(e.keyCode){
@@ -1153,10 +1287,13 @@ function keydown(e){
     e.preventDefault();
 }
 
+//Created By Akash
 function clearCanvas(canvas){
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
+
+//Created By Akash
 function drawBlock(x,y, canvas, color){
     var height = canvas.height;
     var width = canvas.width;
@@ -1166,6 +1303,7 @@ function drawBlock(x,y, canvas, color){
     canvas.strokeRect(x*(width/10), y*(height/20), width/10, height/20);
 }
 
+//Created By Akash
 function updateCanvasFromArray(board, canvas){
     var height = canvas.height;
     var width = canvas.width;
@@ -1239,6 +1377,14 @@ function updateCanvasFromArray(board, canvas){
                     textWidth = ctx.measureText(textString).width;
                     ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), (x + 0.85) *(height/20));
                     break;
+                case "upsideDown":
+                    drawBlock([p],[x], canvas, "#cccccc");
+                    ctx.fillStyle = "#000000";
+                    ctx.font = '30px roboto';
+                    textString = "U";
+                    textWidth = ctx.measureText(textString).width;
+                    ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), (x + 0.85) *(height/20));
+                    break;
                 case 0:
                     break;
                 default:
@@ -1249,7 +1395,7 @@ function updateCanvasFromArray(board, canvas){
 	}
 }
 
-
+//Created by Akash
 socket.on('updateViews', function(data) {
     clearCanvas(canvasObj[1]);
     clearCanvas(canvasObj[2]);

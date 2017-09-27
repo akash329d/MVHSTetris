@@ -13,7 +13,7 @@ var censorjs = require('censorjs');
 didYouMean.threshold = null;
 var $;
 
-
+//Intialize nodeServer jQuery.
 require("jsdom").env("", function(err, window) {
     if (err) {
         console.error(err);
@@ -24,7 +24,7 @@ require("jsdom").env("", function(err, window) {
 });
 
 
-
+//Github Adjective/Noun library.
 var adjectives= ["aback","abaft","abandoned","abashed","aberrant",
     "abhorrent","abiding","abject","ablaze","able","abnormal","aboard",
     "aboriginal","abortive","abounding","abrasive","abrupt","absent",
@@ -178,7 +178,7 @@ Array.prototype.remove = function() {
 };
 
 class gameServer{
-
+	//Created By Akash
     constructor(gameID){
     	this.gameID = gameID;
         this.voting = false;
@@ -194,18 +194,18 @@ class gameServer{
         this.usersPlaying = [];
         this.countdownStarted = false;
     }
-    
+    //Created By Akash
     gameUpdate(socket, data){
         if (this.users[socket.id] != undefined){
 	    this.users[socket.id].gameBoard = data[0];	
 	    this.users[socket.id].gameBoardStatic = data[1];	
 	}
     }
-    
+    //Created By Akash
     userAmount(){
     	return (Object.size(this.users) - 1);
     }
-    
+    //Created By Akash
     userLogon(socket, data){
         if((Object.size(this.users) - 1) >= 5){
 		    socket.emit("update", 'Server has too many people!');
@@ -218,11 +218,11 @@ class gameServer{
 		}else if(data.length > 35 || data.length < 3){
 		    socket.emit("update", 'Username too short/long, please choose a different one!');
 			socket.disconnect();
-		}else{0
+		}else{
 		    this.submitUsernameValidation(socket, data);
 		}
     }
-    
+    //Created By Akash
     hackingDetected(socket, data){
         if (this.users[socket.id] != undefined){
 		socket.broadcast.to(this.gameID).emit("update", 'Server detected "' + this.users[socket.id].name + '" hacking, was kicked!');
@@ -230,7 +230,7 @@ class gameServer{
 		socket.disconnect();
 		}
     }
-    
+    //Created By Akash
     chatMessage(socket, data){
         if (this.users[socket.id] != undefined){
 			if (data.length > 150) {
@@ -393,6 +393,7 @@ class gameServer{
 		}
     }
     
+    //Created By Willis
     lost(socket, data){
         if (this.users[socket.id] != undefined){
 		if(this.usersPlaying.length > 1 && $.inArray(socket.id, this.usersPlaying) != -1){
@@ -418,6 +419,7 @@ class gameServer{
 		}
     }
     
+    //Created by Willis.
     power(socket, data){
         if (this.users[socket.id] != undefined){
 		var powerUpName;
@@ -445,6 +447,9 @@ class gameServer{
             	break;
             case "R":
             	powerUpName = "Random Clear";
+            	break;
+            case "U":
+            	powerUpName = "Upside Down";
             	break;
             case "default":
             	powerUpName = "unknown";
@@ -477,6 +482,7 @@ class gameServer{
 		}
     }
     
+    //Created By Akash
     disconnect(socket, data){
         if (this.users[socket.id] != undefined) {
 			if(this.usersPlaying.length > 1 && $.inArray(socket.id, this.usersPlaying) != -1){
@@ -507,6 +513,7 @@ class gameServer{
 		}
     }
     
+    //Created By Akash
     updateGameViews(){
 	for(var x = 0; x < 5; x++){
 		if(this.users[this.orderedSockets[x]].name != 0){
@@ -531,11 +538,12 @@ class gameServer{
 	}
 }
 
-
+//Created By Akash
     submitUsernameValidation(socket, username){
     	var usersArray = this.users;
         if(($.grep(Object.keys(this.users), function (k) {return usersArray[k].name == username; }).length == 0)){
             if(username.match(this.usernamevalid)){
+            	username = censorjs.clean(username);
                 this.users[socket.id] = {name: username, socket: socket, ready: false};
                 this.orderedSockets[this.orderedSockets.length] = socket.id;
 				socket.emit("update", "Welcome " + this.users[socket.id].name + ", server communication established.");
@@ -552,7 +560,7 @@ class gameServer{
         }
     }
     
-    
+    //Created By Willis
     updateUsernameLabels(){
 	for(var x = 0; x < 5; x++){
 		if(this.users[this.orderedSockets[x]].name != 0){
@@ -581,7 +589,9 @@ class gameServer{
 
 }
 
+
 console.log('Obfuscating/Protecting Javascript...');
+//Node Library (JavaScriptObfuscator).
 function obfuscate(){
 gamejs = JavaScriptObfuscator.obfuscate(
     fs.readFileSync(__dirname + '/public/game.js', "utf8"),
@@ -603,6 +613,7 @@ obfuscate();
     
 console.log('Obfuscation Finished! Ready to serve!');
 
+//Created by Akash
 app.get('/game.js',function(req,res){
 	if(doObfuscate){
    res.send(gamejs.getObfuscatedCode());
@@ -611,7 +622,7 @@ app.get('/game.js',function(req,res){
 	}
 });
 
-
+//Created by Akash
 app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
 
 app.get('/', function(req, res) {
@@ -621,11 +632,13 @@ app.get('/', function(req, res) {
 	res.send(string);
 });
 
+//Created by Akash
 app.get('/*', function(req, res) {
 	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date());
 	res.sendFile(__dirname + '/public/');
 });
 
+//Created by Akash
 http.listen(process.env.PORT, process.env.IP);
 
 var gameServer1 = new gameServer('game1');
@@ -633,7 +646,7 @@ var gameServer2 = new gameServer('game2');
 
 var people = [];
 
-
+//Created by Akash
 io.on('connection', function(socket) {
 	
 	socket.on('gameUpdate', function(data){
@@ -647,7 +660,7 @@ io.on('connection', function(socket) {
 		}
 	});
   
-  
+  //Created by Akash.
 	socket.on('userLogon', function(data) {
 		if(data[1] == '/8wyphr287ybtvo8r7y2r8y2r78horgb28lgk62r'){
 			socket.join('game1');
@@ -669,6 +682,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	
+	//Created by Willis.
 	socket.on('hackingDetected', function(data){
 		switch(people[socket.id]){
 			case 'game1':
@@ -680,6 +694,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	
+	//Created By Akash
 	socket.on('chatMsg', function(data) {
 		switch(people[socket.id]){
 			case 'game1':
@@ -691,6 +706,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	
+	//Created Akash.
 	socket.on("lost", function(data){
 		switch(people[socket.id]){
 			case 'game1':
@@ -702,6 +718,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	
+	//Created By Willis
 	socket.on("power", function(data){
 		switch(people[socket.id]){
 			case 'game1':
@@ -713,7 +730,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	
-	
+	//Created By Akash
 	socket.on("disconnect", function(data) {
 		switch(people[socket.id]){
 			case 'game1':
