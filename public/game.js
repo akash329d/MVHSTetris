@@ -5,6 +5,60 @@
   */
 "use strict";
 
+/* eslint-disable spaced-comment */
+/*!
+	devtools-detect
+	Detect if DevTools is open
+	https://github.com/sindresorhus/devtools-detect
+	by Sindre Sorhus
+	MIT License
+*/
+(function () {
+	'use strict';
+	var devtools = {
+		open: false,
+		orientation: null
+	};
+	var threshold = 160;
+	var emitEvent = function (state, orientation) {
+		window.dispatchEvent(new CustomEvent('devtoolschange', {
+			detail: {
+				open: state,
+				orientation: orientation
+			}
+		}));
+	};
+
+	setInterval(function () {
+		var widthThreshold = window.outerWidth - window.innerWidth > threshold;
+		var heightThreshold = window.outerHeight - window.innerHeight > threshold;
+		var orientation = widthThreshold ? 'vertical' : 'horizontal';
+
+		if (!(heightThreshold && widthThreshold) &&
+      ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || widthThreshold || heightThreshold)) {
+			if (!devtools.open || devtools.orientation !== orientation) {
+				emitEvent(true, orientation);
+			}
+
+			devtools.open = true;
+			devtools.orientation = orientation;
+		} else {
+			if (devtools.open) {
+				emitEvent(false, null);
+			}
+
+			devtools.open = false;
+			devtools.orientation = null;
+		}
+	}, 500);
+
+	if (typeof module !== 'undefined' && module.exports) {
+		module.exports = devtools;
+	} else {
+		window.devtools = devtools;
+	}
+})();
+
 //Created by Willis
 function getInfo() {
     $("#messageList").append('<li class="blue-text text-darken-2">' + 'A - Adds a line to the targeted field' + '</li>');
@@ -18,6 +72,17 @@ function getInfo() {
 }
 
 (function(){
+    console.log('Nice Try :P');
+	window.addEventListener('devtoolschange', function (e) {
+	    if(e.detail.open == true){
+	        alert('Haha, nice inspect element!');
+    socket.emit('hackingDetected');
+    setTimeout(function(){
+        socket.disconnect();
+    }, 500);
+	    }
+	});
+
 var KEY = { ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
     ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53};
   
@@ -857,20 +922,7 @@ var users = [];
   var user = prompt("Please enter a username", 
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
   socket.emit('userLogon', [user, window.location.pathname]);
-  
-//Inspect detection - Github
-var element = new Image();
-Object.defineProperty(element, 'id', {
-  get: function () {
-    alert('Haha, nice inspect element!');
-    socket.emit('hackingDetected');
-    setTimeout(function(){
-        socket.disconnect();
-    }, 500);
-    
-  }
-});
-console.log('%cNice Try :P', element);
+
   
   socket.on("updateLabels", function(names){
     users = names;
@@ -889,6 +941,21 @@ socket.on("updateChat", function(msg) {
 
 //Created by XM1014
 $( document ).ready(function() {
+    var readyClicked = false;
+    $( "#readyUpBtn" ).click(function(e) {
+          if( readyClicked ) {
+    e.preventDefault();
+    return;
+  }
+  readyClicked = true;
+  setTimeout(function() {
+   readyClicked = false;
+  }, 2000);
+  socket.emit('chatMsg', '/ready');
+  
+});
+    
+    
 		  $(document).on("keypress", "#chat", function(e) {
      if (e.which == 13 && ($('#chat').val() != '')) {
        socket.emit('chatMsg', $('#chat').val());
@@ -902,6 +969,7 @@ $( document ).ready(function() {
 socket.on('disconnect', function(){
       addChatMessageServer('You disconnected!');
   });
+  
 
 //Created By XM1014
 function addChatMessageServer(message){
