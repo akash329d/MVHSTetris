@@ -86,7 +86,7 @@ class TetrisGame {
 		}
 		this.thispiece = this.nextPiece;
 		this.keysToProcess = [];
-		this.powerUpArray = ['U', 'U', 'U'];
+		this.powerUpArray = [];
 	}
 	//Created By XM1014
 	getBlocks(piece,curBoard, fn){
@@ -423,9 +423,6 @@ class TetrisGame {
                         case "darkness":
                             this.powerUpArray.push("D");
                             break;
-                        case "upsideDown":
-                            this.powerUpArray.push("U");
-                            break;
                         default:
                             break;
                     }
@@ -445,7 +442,7 @@ class TetrisGame {
 	//Created by Willis
 	spawnPowerUps(amount){
 	    var blocksAvailable = [];
-	    var powerUps = ["addLine", "clearLine", "switch", "earthquake", "nuke", "darkness", "invertedControls", "randomClear", "upsideDown"];
+	    var powerUps = ["addLine", "clearLine", "switch", "earthquake", "nuke", "darkness", "invertedControls", "randomClear"];
 	    for(var x = 0; x < 20; x++){
         for(var p = 0; p < 10; p++){
          if(this.boardStatic[x][p] != 0 && this.boardStatic[x][p].charAt(0) == "#"){
@@ -609,14 +606,6 @@ class TetrisGame {
                                 ctx.fillStyle = "#000000";
                                 ctx.font = '30px roboto';
                                 textString = "D";
-                                textWidth = ctx.measureText(textString).width;
-                                ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
-                                break;
-                            case "upsideDown":
-                                drawBlock([p],[20 - x], canvas, "#cccccc");
-                                ctx.fillStyle = "#000000";
-                                ctx.font = '30px roboto';
-                                textString = "U";
                                 textWidth = ctx.measureText(textString).width;
                                 ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), height - ((x + 0.85) *(height/20)));
                                 break;
@@ -1374,14 +1363,6 @@ function updateCanvasFromArray(board, canvas){
                     ctx.fillStyle = "#000000";
                     ctx.font = '30px roboto';
                     textString = "D";
-                    textWidth = ctx.measureText(textString).width;
-                    ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), (x + 0.85) *(height/20));
-                    break;
-                case "upsideDown":
-                    drawBlock([p],[x], canvas, "#cccccc");
-                    ctx.fillStyle = "#000000";
-                    ctx.font = '30px roboto';
-                    textString = "U";
                     textWidth = ctx.measureText(textString).width;
                     ctx.fillText(textString, p*(width/10) + (((width/10)/2) - (textWidth/2)), (x + 0.85) *(height/20));
                     break;

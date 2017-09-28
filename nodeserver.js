@@ -448,9 +448,6 @@ class gameServer{
             case "R":
             	powerUpName = "Random Clear";
             	break;
-            case "U":
-            	powerUpName = "Upside Down";
-            	break;
             case "default":
             	powerUpName = "unknown";
             	break;
