@@ -16,7 +16,7 @@
     "didyoumean": "^1.2.1",
     "censorjs": "^1.1.1",
     "badwords-list": "^1.0.0",
-    "htmlspecialchars": "1.0.5",
+    "htmlspecialchars": "1.0.5"
   },
   "devDependencies": {},
   "scripts": {
