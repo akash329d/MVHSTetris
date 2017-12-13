@@ -10,6 +10,7 @@ var fs = require("fs");
 var JavaScriptObfuscator = require('javascript-obfuscator');
 var didYouMean = require("didyoumean");
 var censorjs = require('censorjs');
+var htmlspecialchars = require('htmlspecialchars');
 didYouMean.threshold = null;
 var $;
 
@@ -388,6 +389,7 @@ class gameServer{
 			}
 			else {
 				data = censorjs.clean(data);
+				data = htmlspecialchars(data);
 				io.sockets.in(this.gameID).emit("updateChat", this.users[socket.id].name + ": " + data);
 			}
 		}
