@@ -156,7 +156,7 @@ var nouns= ["ninja","chair","pancake","statue","unicorn","rainbows","laser","sen
     "foreman","maintenanceengineering","mechanic","miller","moldmaker","panelbeater","patternmaker","plantoperator","plumber",
     "sawfiler","shopforeman","soaper","stationaryengineer","wheelwright","woodworkers"];
 var gamejs;
-var doObfuscate = false;
+var doObfuscate = true;
 
 //GAME SERVER CLASSES
 Object.size = function(obj) {
@@ -613,15 +613,15 @@ obfuscate();
 console.log('Obfuscation Finished! Ready to serve!');
 
 //Created by reddituser329
-/*app.get('/game.js',function(req,res){
+app.get('/game.js',function(req,res){
 	if(doObfuscate){
    res.send(gamejs.getObfuscatedCode());
 	}else{
 		res.send(fs.readFileSync(__dirname + '/public/game.js', "utf8"));
 	}
-});*/
+});
 
-app.use("/game.js", express.static(__dirname + '/public/game.js'));
+//app.use("/game.js", express.static(__dirname + '/public/game.js'));
 
 //Created by reddituser329
 app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
