@@ -1,5 +1,5 @@
-/* 
-  global io 
+/*
+  global io
   global $
   global Image
   */
@@ -59,7 +59,7 @@
 	}
 })();
 
-//Created by reddituser329
+
 function getInfo() {
     $("#messageList").append('<li class="blue-text text-darken-2">' + 'A - Adds a line to the targeted field' + '</li>');
     $("#messageList").append('<li class="blue-text text-darken-2">' + 'C - Clears a line from the targeted field' + '</li>');
@@ -83,19 +83,19 @@ function getInfo() {
 	    }
 	});
 
-var KEY = { ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
+var KEY = { ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37,
     ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39, ONE: 49, TWO: 50, THREE: 51, FOUR: 52, FIVE: 53};
-  
-window.onbeforeunload = function() { 
-    window.setTimeout(function () { 
+
+window.onbeforeunload = function() {
+    window.setTimeout(function () {
         window.location = '/';
-    }, 0); 
-    window.onbeforeunload = null; // necessary to prevent infinite loop, that kills your browser 
+    }, 0);
+    window.onbeforeunload = null; // necessary to prevent infinite loop, that kills your browser
 };
 
 console.log('MVHS Tetris Loaded!');
 
-//Created By reddituser329
+
 class Block {
 	constructor(row1, row2, row3, row4, color, idNum) {
 		this.represent = [];
@@ -113,14 +113,14 @@ class Block {
 		this.xpos = 2;
 		this.ypos = 0;
 	}
-	
+
 	get updateRotation(){
 	    this.represent[0] = this.arrayify(("0000" + this.l1.toString(2)).slice(-4));
 		this.represent[1] = this.arrayify(("0000" + this.l2.toString(2)).slice(-4));
 		this.represent[2] = this.arrayify(("0000" + this.l3.toString(2)).slice(-4));
 		this.represent[3] = this.arrayify(("0000" + this.l4.toString(2)).slice(-4));
 	}
-	
+
 	arrayify(string) {
     var outArray = [];
     for(var c = 0; c < 4; c ++) {
@@ -153,10 +153,10 @@ class TetrisGame {
 		this.keysToProcess = [];
 		this.powerUpArray = [];
 	}
-	//Created By reddituser329
+
 	getBlocks(piece,curBoard, fn){
 	    var blocks = [];
-	    
+
 	    for(var f = 0; f < piece.represent.length; f++) {
             var cube = piece.represent[f];
             for(var k = 0; k < cube.length; k++) {
@@ -165,13 +165,13 @@ class TetrisGame {
                     blocks[blocks.length] = {x: k + piece.xpos, y: f + piece.ypos};
                 }
             }
-	    
+
 	    }
-	
+
 	    return blocks;
 	}
-	
-	//Created By reddituser329
+
+
 	get rotate(){
         switch(this.thispiece.idNum) {
             case 1:
@@ -312,11 +312,11 @@ class TetrisGame {
                 break;
         }
         this.thispiece.updateRotation;
-        
+
 	}
-	
-	
-	//Created By reddituser329
+
+
+
 	canMove(dir) {
 	    var canMove = true;
 	    var block = this.getBlocks(this.thispiece,this.board, function(x, y, theboard, curPiece){});
@@ -328,14 +328,14 @@ class TetrisGame {
 	                }
 	            }
 	            break;
-	        case 'left': 
+	        case 'left':
 	            for(p = 0; p < block.length; p++){
 	                if(this.isOccupied(block[p].x - 1, block[p].y) == true){
 	                    canMove = false;
 	                }
 	            }
 	            break;
-	       case 'down': 
+	       case 'down':
 	            for(p = 0; p < block.length; p++){
 	                if(this.isOccupied(block[p].x, block[p].y + 1) == true){
 	                    canMove = false;
@@ -345,7 +345,7 @@ class TetrisGame {
 	    }
 	    return canMove;
 	}
-	//Created By reddituser329
+
 	getNextPiece(){
         var seed1 = (Math.seed * 9301 + 49297) % 233280;
         var rnd = seed1 / 233280.0;
@@ -353,13 +353,13 @@ class TetrisGame {
         var randNum = Math.floor(randumNumber * (this.bag.length));
 	    return this.bag[randNum];
 	}
-	
-	//Created by reddituser329
+
+
 	newBlock(blockType){
 	    switch(blockType){
 	        case 'i':
 	           return (new Block(4, 4, 4, 4, "#0000ff", 1));
-	        case 'o': 
+	        case 'o':
 	           return (new Block(6, 6, 0, 0, "#ff0000", 2));
 	       case 'l':
 	           return (new Block(2, 2, 3, 0, "#00aa00", 3));
@@ -373,14 +373,14 @@ class TetrisGame {
 	           return (new Block(6, 3, 0, 0, "#ff7700", 7));
 	    }
 	}
-	
-	//Created By reddituser329
+
+
 	get nextPiece(){
 		if (this.bag.length === 0) {
 			this.bag = [this.newBlock('i'), this.newBlock('i'), this.newBlock('i'), this.newBlock('i'),
-    			this.newBlock('j'), this.newBlock('j'), this.newBlock('j'), this.newBlock('j'), 
-	    		this.newBlock('o'), this.newBlock('o'), this.newBlock('o'), this.newBlock('o'), 
-		    	this.newBlock('l'), this.newBlock('l'), this.newBlock('l'), this.newBlock('l'), 
+    			this.newBlock('j'), this.newBlock('j'), this.newBlock('j'), this.newBlock('j'),
+	    		this.newBlock('o'), this.newBlock('o'), this.newBlock('o'), this.newBlock('o'),
+		    	this.newBlock('l'), this.newBlock('l'), this.newBlock('l'), this.newBlock('l'),
 	    		this.newBlock('s'), this.newBlock('s'), this.newBlock('s'), this.newBlock('s'),
 		    	this.newBlock('z'), this.newBlock('z'), this.newBlock('z'), this.newBlock('z'),
 		    	this.newBlock('t'), this.newBlock('t'), this.newBlock('t'), this.newBlock('t')];
@@ -389,9 +389,9 @@ class TetrisGame {
 		var chosen = this.bag.splice(randNum, 1);
 		if (this.bag.length === 0) {
 			this.bag = [this.newBlock('i'), this.newBlock('i'), this.newBlock('i'), this.newBlock('i'),
-    			this.newBlock('j'), this.newBlock('j'), this.newBlock('j'), this.newBlock('j'), 
-	    		this.newBlock('o'), this.newBlock('o'), this.newBlock('o'), this.newBlock('o'), 
-		    	this.newBlock('l'), this.newBlock('l'), this.newBlock('l'), this.newBlock('l'), 
+    			this.newBlock('j'), this.newBlock('j'), this.newBlock('j'), this.newBlock('j'),
+	    		this.newBlock('o'), this.newBlock('o'), this.newBlock('o'), this.newBlock('o'),
+		    	this.newBlock('l'), this.newBlock('l'), this.newBlock('l'), this.newBlock('l'),
 	    		this.newBlock('s'), this.newBlock('s'), this.newBlock('s'), this.newBlock('s'),
 		    	this.newBlock('z'), this.newBlock('z'), this.newBlock('z'), this.newBlock('z'),
 		    	this.newBlock('t'), this.newBlock('t'), this.newBlock('t'), this.newBlock('t')];
@@ -399,13 +399,13 @@ class TetrisGame {
 		return chosen[0];
 
 	}
-	
-	//Created By reddituser329
+
+
 	get boardVar(){
 	    return this.board;
 	}
-	
-	//Created By reddituser329
+
+
 	updateDynamicBoard(){
 	    var staticBoardString = JSON.stringify(this.boardStatic);
 		this.board = JSON.parse(staticBoardString);
@@ -413,8 +413,8 @@ class TetrisGame {
 		        theboard[y][x] = curPiece.color;
 		    });
 	}
-	
-	//Created By reddituser329
+
+
 	process() {
 	    if(!(JSON.stringify(this.boardStatic[0]) == JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))){
             this.hasLost = true;
@@ -437,10 +437,10 @@ class TetrisGame {
 		    this.getBlocks(this.thispiece,this.boardStatic, function(x, y, theboard, curPiece){
 		        theboard[y][x] = curPiece.color;
 		    });
-			this.thispiece = this.nextPiece; 
+			this.thispiece = this.nextPiece;
 		}
 		}
-		
+
         this.keyPressHandler(this.keysToProcess.shift());
         if(this.darknessEnabled){
             for (var c = 0; c < 20; c++) {
@@ -448,8 +448,8 @@ class TetrisGame {
 		}
         }
 	}
-	
-	//Created By reddituser329
+
+
 	clearLines(){
 	    var amountOfLinesCleared = 0;
 	    for(var z = 0; z < this.boardStatic.length; z++){
@@ -494,7 +494,7 @@ class TetrisGame {
                 }
                 amountOfLinesCleared++;
             }
-	        
+
 	    }
 	    if(amountOfLinesCleared > 1){
 	        var powerUpsToSpawn = Math.floor((Math.random()) * (amountOfLinesCleared));
@@ -502,9 +502,9 @@ class TetrisGame {
 	        socket.emit("power", ["A", "all", amountOfLinesCleared - 1]);
 	    }
 	}
-	
-	
-	//Created by reddituser329
+
+
+
 	spawnPowerUps(amount){
 	    var blocksAvailable = [];
 	    var powerUps = ["addLine", "clearLine", "switch", "earthquake", "nuke", "darkness", "invertedControls", "randomClear"];
@@ -524,8 +524,8 @@ class TetrisGame {
 	        }
 	    }
 	}
-	
-	//Created By reddituser329
+
+
 	handlePower(data){
 	    switch(data[0]){
             case "A":
@@ -566,7 +566,7 @@ class TetrisGame {
                 KEY.ARROWDOWN = 38;
                 KEY.ARROWUP = 40;
                 setTimeout(function() {
-                    KEY = {ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37, 
+                    KEY = {ESC: 27, SPACE: 32, LEFT: 65 , UP: 87, RIGHT: 68, DOWN: 83, ARROWLEFT: 37,
                     ARROWDOWN: 40, ARROWUP: 38, ARROWRIGHT: 39};
                 }, 5000);
                 break;
@@ -685,9 +685,9 @@ class TetrisGame {
                 break;
 	    }
 	}
-	
-	
-	//Created By reddituser329
+
+
+
 	moveBlock(piece, dir){
 	    switch(dir){
 	        case 'right':
@@ -695,21 +695,21 @@ class TetrisGame {
 		            piece.xpos++;
 	            }
 	            break;
-	        case 'left': 
+	        case 'left':
 	           if(this.canMove('left')){
 		            piece.xpos--;
 	            }
 	            break;
-	       case 'down': 
+	       case 'down':
 	            if(this.canMove('down')){
 		            piece.ypos++;
 	            }
 	            break;
 	    }
 	}
-	
-	
-	//Created by reddituser329
+
+
+
 	isOccupied(xpos, ypos){
 	    if(this.boardStatic[ypos] == undefined){
 	        return 1;
@@ -722,8 +722,8 @@ class TetrisGame {
 	    }
 	    }
 	}
-	
-	//Created by reddituser329
+
+
 	keyPressHandler(key){
         switch(key){
             case KEY.DOWN:
@@ -750,13 +750,13 @@ class TetrisGame {
 		        this.getBlocks(this.thispiece,this.boardStatic, function(x, y, theboard, curPiece){
 		            theboard[y][x] = curPiece.color;
 		        });
-		    	this.thispiece = this.nextPiece; 
+		    	this.thispiece = this.nextPiece;
                 break;
         }
     }
 }
 
-//Created By reddituser329
+
 Math.seededRandom = function(max, min) {
     max = max || 1;
     min = min || 0;
@@ -767,7 +767,7 @@ Math.seededRandom = function(max, min) {
     return min + rnd * (max - min);
 };
 
-//Created by reddituser329
+
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -917,29 +917,29 @@ var nouns= ["ninja","chair","pancake","statue","unicorn","rainbows","laser","sen
     "sawfiler","shopforeman","soaper","stationaryengineer","wheelwright","woodworkers"];
 var users = [];
 
-//Created By reddituser329
+
   var socket = io();
-  var user = prompt("Please enter a username", 
+  var user = prompt("Please enter a username",
     adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)]);
   socket.emit('userLogon', [user, window.location.pathname]);
 
-  
+
   socket.on("updateLabels", function(names){
     users = names;
     updatePlayerLabels(names[0], names[1], names[2], names[3], names[4]);
   });
-  //Created By reddituser329
+
 socket.on("update", function(msg) {
 			 addChatMessageServer(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
-		//Created By reddituser329
+
 socket.on("updateChat", function(msg) {
 			 addChatMessage(msg);
 			 document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 		});
 
-//Created by reddituser329
+
 $( document ).ready(function() {
     var readyClicked = false;
     $( "#readyUpBtn" ).click(function(e) {
@@ -952,10 +952,10 @@ $( document ).ready(function() {
    readyClicked = false;
   }, 2000);
   socket.emit('chatMsg', '/ready');
-  
+
 });
-    
-    
+
+
 		  $(document).on("keypress", "#chat", function(e) {
      if (e.which == 13 && ($('#chat').val() != '')) {
        socket.emit('chatMsg', $('#chat').val());
@@ -965,23 +965,23 @@ $( document ).ready(function() {
 		  document.getElementById("textBox").scrollTop = document.getElementById("textBox").scrollHeight;
 });
 
-//Created By reddituser329
+
 socket.on('disconnect', function(){
       addChatMessageServer('You disconnected!');
   });
-  
 
-//Created By reddituser329
+
+
 function addChatMessageServer(message){
   $("#messageList").append('<li class="red-text text-darken-2">' + message + '</li>');
 }
 
-//Created By reddituser329
+
 function addChatMessage(message){
   $("#messageList").append('<li>' + message + '</li>');
 }
 
-//Created By reddituser329
+
 function updatePlayerLabels(main, player2, player3, player4, player5){
   if(player2 == null || player2 == undefined){
     player2 = "";
@@ -1002,9 +1002,9 @@ function updatePlayerLabels(main, player2, player3, player4, player5){
   $("#player5label").html("5. " + player5);
 }
 
-    
+
 var game;
-var interval; 
+var interval;
 var counter;
 var gameRunning = false;
 var canvasObj = [document.getElementById("mainCanvas"),
@@ -1029,9 +1029,9 @@ socket.on('ready', function(data){
   socket.on('gameInterval', function(){
      if(gameRunning){
          process();
-     } 
+     }
   });
-  
+
   socket.on("gameOver", function(){
       gameRunning = false;
     if(game.hasLost){
@@ -1052,10 +1052,10 @@ socket.on('ready', function(data){
         clearCanvas(canvasObj[4]);
         clearCanvas(canvasObj[5]);
         clearCanvas(canvasObj[6]);
-        
+
     }
   });
-  
+
 socket.on("clientPower", function(data) {
     game.handlePower(data);
 });
@@ -1081,7 +1081,7 @@ function process(){
 }
 
 
-//Created by reddituser329
+
 function drawPowerUps(canvas1, array){
     clearCanvas(canvas1);
     for(var o = 0; o < array.length; o++){
@@ -1090,8 +1090,8 @@ function drawPowerUps(canvas1, array){
         var textString;
         var textWidth;
         var ctx = canvas1.getContext("2d");
-                
-        
+
+
         switch(array[o]) {
                 case "A":
                     ctx.fillStyle = "grey";
@@ -1187,7 +1187,7 @@ function drawPowerUps(canvas1, array){
     }
 }
 
-//Created By reddituser329
+
 function drawLost(canvas){
     var ctx = canvas.getContext("2d");
     clearCanvas(canvas);
@@ -1198,7 +1198,7 @@ function drawLost(canvas){
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2);
 }
 
-//Created By reddituser329
+
 function drawWon(canvas){
     var ctx = canvas.getContext("2d");
     clearCanvas(canvas);
@@ -1209,7 +1209,7 @@ function drawWon(canvas){
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2);
 }
 
-//Created By reddituser329
+
 function drawNextPiece(piece){
     clearCanvas(canvasObj[5]);
     switch(piece.idNum) {
@@ -1258,7 +1258,7 @@ function drawNextPiece(piece){
         }
 }
 
-//Created By reddituser329
+
 function drawBlockNextPiece(x,y, canvas, color){
     var height = canvas.height;
     var width = canvas.width;
@@ -1268,7 +1268,7 @@ function drawBlockNextPiece(x,y, canvas, color){
     canvas.strokeRect(x*(width/4), y*(height/4), width/4, height/4);
 }
 
-//Created By reddituser329
+
 function keydown(e){
     var extraVar;
     switch(e.keyCode){
@@ -1278,16 +1278,16 @@ function keydown(e){
       case KEY.RIGHT:
           game.keysToProcess.push(KEY.RIGHT);
           break;
-      case KEY.UP:     
+      case KEY.UP:
           game.keysToProcess.push(KEY.UP);
           break;
-      case KEY.DOWN:   
+      case KEY.DOWN:
           game.keysToProcess.push(KEY.DOWN);
           break;
       case KEY.SPACE:
           game.keysToProcess.push(KEY.SPACE);
           break;
-      case KEY.ARROWLEFT: 
+      case KEY.ARROWLEFT:
           game.keysToProcess.push(KEY.LEFT);
           break;
       case KEY.ARROWRIGHT:
@@ -1339,18 +1339,18 @@ function keydown(e){
         }
           }
           break;
-        
+
     }
     e.preventDefault();
 }
 
-//Created By reddituser329
+
 function clearCanvas(canvas){
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
 
-//Created By reddituser329
+
 function drawBlock(x,y, canvas, color){
     var height = canvas.height;
     var width = canvas.width;
@@ -1360,7 +1360,7 @@ function drawBlock(x,y, canvas, color){
     canvas.strokeRect(x*(width/10), y*(height/20), width/10, height/20);
 }
 
-//Created By reddituser329
+
 function updateCanvasFromArray(board, canvas){
     var height = canvas.height;
     var width = canvas.width;
@@ -1444,7 +1444,7 @@ function updateCanvasFromArray(board, canvas){
 	}
 }
 
-//Created by reddituser329
+
 socket.on('updateViews', function(data) {
     clearCanvas(canvasObj[1]);
     clearCanvas(canvasObj[2]);

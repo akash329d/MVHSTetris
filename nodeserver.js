@@ -179,7 +179,7 @@ Array.prototype.remove = function() {
 };
 
 class gameServer{
-	//Created By reddituser329
+
     constructor(gameID){
     	this.gameID = gameID;
         this.voting = false;
@@ -195,18 +195,18 @@ class gameServer{
         this.usersPlaying = [];
         this.countdownStarted = false;
     }
-    //Created By reddituser329
+
     gameUpdate(socket, data){
         if (this.users[socket.id] != undefined){
-	    this.users[socket.id].gameBoard = data[0];	
-	    this.users[socket.id].gameBoardStatic = data[1];	
+	    this.users[socket.id].gameBoard = data[0];
+	    this.users[socket.id].gameBoardStatic = data[1];
 	}
     }
-    //Created By reddituser329
+
     userAmount(){
     	return (Object.size(this.users) - 1);
     }
-    //Created By reddituser329
+
     userLogon(socket, data){
         if((Object.size(this.users) - 1) >= 5){
 		    socket.emit("update", 'Server has too many people!');
@@ -223,7 +223,7 @@ class gameServer{
 		    this.submitUsernameValidation(socket, data);
 		}
     }
-    //Created By reddituser329
+
     hackingDetected(socket, data){
         if (this.users[socket.id] != undefined){
 		socket.broadcast.to(this.gameID).emit("update", 'Server detected "' + this.users[socket.id].name + '" hacking, was kicked!');
@@ -231,12 +231,12 @@ class gameServer{
 		socket.disconnect();
 		}
     }
-    //Created By reddituser329
+
     chatMessage(socket, data){
         if (this.users[socket.id] != undefined){
 			if (data.length > 150) {
 				socket.emit("update", "Chat message too long, please stay under 150 characters");
-			} 
+			}
 			else if(data.charAt(0) == "/") {
 				switch(data.substring(0,6)){
 					case "/ready":
@@ -247,7 +247,7 @@ class gameServer{
 									this.users[socket.id].ready = true;
 									var users = this.users;
 									var amountReady = $.grep(Object.keys(this.users), function(k) {
-										return users[k].ready == true; 
+										return users[k].ready == true;
 									}).length;
 									io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " is ready to play! (" + amountReady + "/" + (Object.size(this.users) - 1) + ")");
 									if (amountReady > (Object.size(this.users) - 1) / 2 && !this.countdownStarted) {
@@ -274,7 +274,7 @@ class gameServer{
 													this.users[this.usersPlaying[i]].ready = false;
 													this.users[this.usersPlaying[i]].lastUpdate = new Date();
 												}
-												
+
 											}, 5000);
 											setTimeout(()  => {
 												for (var i = 0; i < this.usersPlaying.length; i++) {
@@ -286,7 +286,7 @@ class gameServer{
 												this.gameUpdateInterval = setInterval(()  => {
 													this.updateGameViews();
 												}, 250);
-												
+
 											},10000);
 										} else {
 											io.sockets.in(this.gameID).emit("update", "Need more than 1 person to start the game!");
@@ -302,7 +302,7 @@ class gameServer{
 						if(!this.voting){
 							for(var x = 0; x < 5; x++){
 								if(this.users[this.orderedSockets[x]].name != 0){
-									this.users[this.orderedSockets[x]].voted = false;	
+									this.users[this.orderedSockets[x]].voted = false;
 								}
 							}
 							var theUsers = this.users;
@@ -394,8 +394,8 @@ class gameServer{
 			}
 		}
     }
-    
-    //Created By reddituser329
+
+
     lost(socket, data){
         if (this.users[socket.id] != undefined){
 		if(this.usersPlaying.length > 1 && $.inArray(socket.id, this.usersPlaying) != -1){
@@ -410,18 +410,18 @@ class gameServer{
 			io.sockets.in(this.gameID).emit("update", this.users[this.usersPlaying[0]].name + " won the game!");
 			for(var x = 0; x < 5; x++){
 			if(this.users[this.orderedSockets[x]].name != 0){
-				this.users[this.orderedSockets[x]].gameBoard = null;	
+				this.users[this.orderedSockets[x]].gameBoard = null;
 				this.updateGameViews();
 			}
 			}
 			this.usersPlaying = [];
-			
+
 			}
 			}
 		}
     }
-    
-    //Created by reddituser329.
+
+    .
     power(socket, data){
         if (this.users[socket.id] != undefined){
 		var powerUpName;
@@ -454,7 +454,7 @@ class gameServer{
             	powerUpName = "unknown";
             	break;
         }
-		
+
 		for(var k = 0; k < data[2]; k ++) {
 			data[3 + k] = Math.random();
 		}
@@ -474,14 +474,14 @@ class gameServer{
 				data[2] = gameBoard2;
 				this.users[targetSocket[0]].socket.emit("clientPower", data);
 			}else{
-				this.users[targetSocket[0]].socket.emit("clientPower", data);	
+				this.users[targetSocket[0]].socket.emit("clientPower", data);
 			}
-			
+
 		}
 		}
     }
-    
-    //Created By reddituser329
+
+
     disconnect(socket, data){
         if (this.users[socket.id] != undefined) {
 			if(this.usersPlaying.length > 1 && $.inArray(socket.id, this.usersPlaying) != -1){
@@ -496,23 +496,23 @@ class gameServer{
 			io.sockets.in(this.gameID).emit("update", this.users[this.usersPlaying[0]].name + " won the game!");
 			for(var x = 0; x < 5; x++){
 			if(this.users[this.orderedSockets[x]].name != 0){
-				this.users[this.orderedSockets[x]].gameBoard = null;	
+				this.users[this.orderedSockets[x]].gameBoard = null;
 				this.updateGameViews();
 			}
 			}
 			this.usersPlaying = [];
-			
+
 			}
 			}
 			io.sockets.in(this.gameID).emit("update", this.users[socket.id].name + " has left the server.");
 			this.orderedSockets.splice(this.orderedSockets.indexOf(socket.id), 1);
 			delete this.users[socket.id];
 			this.updateUsernameLabels();
-			
+
 		}
     }
-    
-    //Created By reddituser329
+
+
     updateGameViews(){
 	for(var x = 0; x < 5; x++){
 		if(this.users[this.orderedSockets[x]].name != 0){
@@ -532,12 +532,12 @@ class gameServer{
 			case 4:
 				this.users[this.orderedSockets[4]].socket.emit("updateViews", [this.users[this.orderedSockets[0]].gameBoard, this.users[this.orderedSockets[1]].gameBoard, this.users[this.orderedSockets[2]].gameBoard, this.users[this.orderedSockets[3]].gameBoard]);
 				break;
-		}	
+		}
 	}
 	}
 }
 
-//Created By reddituser329
+
     submitUsernameValidation(socket, username){
     	var usersArray = this.users;
         if(($.grep(Object.keys(this.users), function (k) {return usersArray[k].name == username; }).length == 0)){
@@ -558,8 +558,8 @@ class gameServer{
 			socket.disconnect();
         }
     }
-    
-    //Created By reddituser329
+
+
     updateUsernameLabels(){
 	for(var x = 0; x < 5; x++){
 		if(this.users[this.orderedSockets[x]].name != 0){
@@ -579,7 +579,7 @@ class gameServer{
 			case 4:
 				this.users[this.orderedSockets[4]].socket.emit("updateLabels", [this.users[this.orderedSockets[4]].name, this.users[this.orderedSockets[0]].name, this.users[this.orderedSockets[1]].name, this.users[this.orderedSockets[2]].name, this.users[this.orderedSockets[3]].name]);
 				break;
-		}	
+		}
 	}
 	}
 }
@@ -606,13 +606,13 @@ gamejs = JavaScriptObfuscator.obfuscate(
     stringArrayEncoding: false,
     unicodeEscapeSequence: true
 });
-    
+
 }
 obfuscate();
-    
+
 console.log('Obfuscation Finished! Ready to serve!');
 
-//Created by reddituser329
+
 app.get('/game.js',function(req,res){
 	if(doObfuscate){
    res.send(gamejs.getObfuscatedCode());
@@ -623,7 +623,7 @@ app.get('/game.js',function(req,res){
 
 //app.use("/game.js", express.static(__dirname + '/public/game.js'));
 
-//Created by reddituser329
+
 app.use("/favicon.png", express.static(__dirname + '/public/favicon.ico'));
 
 app.get('/', function(req, res) {
@@ -633,13 +633,13 @@ app.get('/', function(req, res) {
 	res.send(string);
 });
 
-//Created by reddituser329
+
 app.get('/*', function(req, res) {
 	console.log(req.headers['x-forwarded-for'] + " Logged on at " + new Date());
 	res.sendFile(__dirname + '/public/');
 });
 
-//Created by reddituser329
+
 http.listen(process.env.PORT, process.env.IP);
 
 var gameServer1 = new gameServer('game1');
@@ -647,9 +647,9 @@ var gameServer2 = new gameServer('game2');
 
 var people = [];
 
-//Created by reddituser329
+
 io.on('connection', function(socket) {
-	
+
 	socket.on('gameUpdate', function(data){
 		switch(people[socket.id]){
 			case 'game1':
@@ -660,8 +660,8 @@ io.on('connection', function(socket) {
 				break;
 		}
 	});
-  
-  //Created by reddituser329.
+
+  .
 	socket.on('userLogon', function(data) {
 		if(data[1] == '/8wyphr287ybtvo8r7y2r8y2r78horgb28lgk62r'){
 			socket.join('game1');
@@ -682,8 +682,8 @@ io.on('connection', function(socket) {
 				break;
 		}
 	});
-	
-	//Created by reddituser329.
+
+	.
 	socket.on('hackingDetected', function(data){
 		switch(people[socket.id]){
 			case 'game1':
@@ -694,8 +694,8 @@ io.on('connection', function(socket) {
 				break;
 		}
 	});
-	
-	//Created By reddituser329
+
+
 	socket.on('chatMsg', function(data) {
 		switch(people[socket.id]){
 			case 'game1':
@@ -706,7 +706,7 @@ io.on('connection', function(socket) {
 				break;
 		}
 	});
-	
+
 	//Created reddituser329.
 	socket.on("lost", function(data){
 		switch(people[socket.id]){
@@ -718,8 +718,8 @@ io.on('connection', function(socket) {
 				break;
 		}
 	});
-	
-	//Created By reddituser329
+
+
 	socket.on("power", function(data){
 		switch(people[socket.id]){
 			case 'game1':
@@ -730,8 +730,8 @@ io.on('connection', function(socket) {
 				break;
 		}
 	});
-	
-	//Created By reddituser329
+
+
 	socket.on("disconnect", function(data) {
 		switch(people[socket.id]){
 			case 'game1':
@@ -743,12 +743,5 @@ io.on('connection', function(socket) {
 		}
 		delete people[socket.id];
 	});
-	
+
 });
-
-
-
-
-
-
-
