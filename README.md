@@ -12,3 +12,10 @@ I - Inverts the controls of the targeted player<br>
 N - Nukes clear out the targeted field<br>
 R - Randomly clears blocks from the targeted field<br>
 S - Switches fields with the targeted player<br>
+
+To Do:
+<br>✔️ MAKE MULTIPLE ROOMS (Heroku Server currently running with 2 rooms, using server as object)
+<br>✔️ Add spam filter.
+<br>Move power up get code to serverside to prevent cheating (Non issue, might implement in future).
+<br>Make spacebar have delay (~300 ms) while holding to avoid insta-lose
+
