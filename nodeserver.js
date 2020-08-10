@@ -421,7 +421,6 @@ class gameServer{
 		}
     }
 
-    .
     power(socket, data){
         if (this.users[socket.id] != undefined){
 		var powerUpName;
@@ -661,7 +660,6 @@ io.on('connection', function(socket) {
 		}
 	});
 
-  .
 	socket.on('userLogon', function(data) {
 		if(data[1] == '/8wyphr287ybtvo8r7y2r8y2r78horgb28lgk62r'){
 			socket.join('game1');
@@ -683,7 +681,7 @@ io.on('connection', function(socket) {
 		}
 	});
 
-	.
+
 	socket.on('hackingDetected', function(data){
 		switch(people[socket.id]){
 			case 'game1':
